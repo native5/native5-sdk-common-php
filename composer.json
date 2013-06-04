@@ -1,0 +1,37 @@
+{   
+    "name"            : "native5/commons",
+    "description"     : "Native5 Commons Module",
+    "version"         : "0.1.0",
+    "keywords"        : ["core", "util"],
+    "homepage"        : "http://www.native5.com",
+    "license"         : "Apache-2.0",
+    "authors"         : [
+        {
+            "name"    : "Barada Sahu",
+            "email"   : "barry@native5.com"
+        },
+        {
+            "name"    : "Shamik Datta",
+            "email"   : "shamik@native5.com"
+        }
+    ],
+    "support"        : {
+            "email"   : "support@native5.com"
+    },
+    "repositories": [ 
+        { 
+            "type": "pear", 
+            "url": "http://pear.php.net" 
+        }
+    ],
+    "require" : {
+            "monolog/monolog": "1.2.*",
+            "phpunit/phpunit": "3.7.*",
+    },
+    "autoload": {
+            "psr-0": {
+                "Native5": "src/",
+                "Native5\\Tests": "tests/"
+            }
+    }
+}
