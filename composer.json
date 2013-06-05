@@ -26,6 +26,7 @@
     ],
     "require" : {
             "monolog/monolog": "1.2.*",
+             "pear-pear.php.net/Log": "*",
             "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
