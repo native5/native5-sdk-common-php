@@ -30,9 +30,7 @@
     },
     "autoload": {
             "psr-0": {
-                "Native5\\Core": "src/Native5/Core/",
-                "Native5\\Util": "src/Native5/Util/"
-
+                "Native5": "src"
             }
     }
 }
