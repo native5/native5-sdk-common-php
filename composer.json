@@ -31,7 +31,7 @@
     "autoload": {
             "psr-0": {
                 "Native5\\Core": "src/"
-            },
-            "target-dir" : "Native5/Core"
-    }
+            }
+    },
+    "target-dir" : "Native5/Core"
 }
