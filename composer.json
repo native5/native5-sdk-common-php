@@ -4,7 +4,7 @@
     "version"         : "0.1.0",
     "keywords"        : ["core", "util"],
     "homepage"        : "http://www.native5.com",
-    "license"         : "Apache-2.0",
+    "license"         : "proprietary",
     "authors"         : [
         {
             "name"    : "Barada Sahu",
