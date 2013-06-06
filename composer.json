@@ -21,12 +21,12 @@
     "repositories": [ 
         { 
             "type": "pear", 
-            "url": "http://pear.php.net" 
+            "url": "http://pear2.php.net" 
         }
     ],
     "require" : {
             "monolog/monolog": "1.2.*",
-             "pear-pear.php.net/Log": "*",
+            "pear-pear2.php.net/Log": "*",
             "phpunit/phpunit": "3.7.*",
             "sami/sami": "1.0.*@dev"
     },
