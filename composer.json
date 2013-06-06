@@ -27,7 +27,8 @@
     "require" : {
             "monolog/monolog": "1.2.*",
              "pear-pear.php.net/Log": "*",
-            "phpunit/phpunit": "3.7.*"
+            "phpunit/phpunit": "3.7.*",
+            "sami/sami": "1.0.*@dev"
     },
     "autoload": {
             "psr-0": {

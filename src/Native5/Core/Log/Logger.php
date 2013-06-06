@@ -42,7 +42,12 @@ interface Logger
 
 
     /**
-     * Base method to log information.
+     * Base method to log data.
+     * 
+     * - Supports Markdown
+     * - Or maybe not
+     *
+     * ## Maybe a deciding criteria.
      *
      * @param mixed $message  String message with placeholders in printf format.
      * @param mixed $args     arguments for placeholder in message
