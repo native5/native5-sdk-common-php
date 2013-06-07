@@ -53,8 +53,8 @@ class PhoneFormatter implements Formatter
         $regex = "/[^0-9]/";
         $number = preg_replace($regex, "", $number);
 
-        if(strlen($number) > 12)
-            throw new UnsupportedFormatException();
+        if(strlen($number) > 13)
+            throw new \Exception('Unsupported Format for number '.$number);
 
         if(strlen($number) >10)
             $countryCode = "";
