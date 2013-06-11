@@ -21,7 +21,7 @@
  * @link      http://www.docs.native5.com 
  */
 
-namespace Native5\Core\Connectors\Database;
+namespace Native5\Core\Database;
 
 /**
  * %ClassName% 
