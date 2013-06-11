@@ -21,7 +21,7 @@
  * @link      http://www.docs.native5.com
  */
 
-namespace Native5\Core\Connectors\Database;
+namespace Native5\Core\Database;
 
 /**
  * DB 
@@ -36,21 +36,57 @@ namespace Native5\Core\Connectors\Database;
  * Created : 27-11-2012
  * Last Modified : Fri Dec 21 09:11:53 2012
  */
-class DB {
+class DB
+{
+
     private static $_db;
 
-    public static function instance() {
-        if (is_null(self::$_db)) {
-            self::$_db=new \PDO('mysql:host='.DBConfig::HOST.';dbname='.DBConfig::NAME, DBConfig::USER, DBConfig::PASSWD);
+
+    /**
+     * instance 
+     * 
+     * @param mixed $configuration Database configuration
+     *
+     * @static
+     * @access public
+     * @return void
+     */
+    public static function instance($configuration=null)
+    {
+        if (empty(self::$_db) === true) {
+            if ($configuration === null) {
+                $dsn = 'mysql:host='.$configuration['host'].';dbname='.$configuration['name'];
+                self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
+            } else {
+                self::$_db = new \PDO('mysql:host='.DBConfig::HOST.';dbname='.DBConfig::NAME, DBConfig::USER, DBConfig::PASSWD);
+            }
+
             self::$_db->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
             self::$_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         }
-        return self::$_db;
-    }
 
-    public static function factory() {
+        return self::$_db;
+
+    }//end instance()
+
+
+    /**
+     * Factory method for instantiating a db object. 
+     * 
+     * @static
+     * @access public
+     * @return void
+     */
+    public static function factory()
+    {
         return new self;
-    }
+
+    }//end factory()
+
+
     private function __construct() {}
-}
+
+
+}//end class
+
 ?>
