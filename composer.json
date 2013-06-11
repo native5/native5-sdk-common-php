@@ -24,7 +24,6 @@
             "url": "http://pear.php.net" 
         }
     ],
-    "minimum-stability": "dev",        
     "require" : {
             "monolog/monolog": "1.2.*",
             "pear-pear.php.net/Log": "*",
