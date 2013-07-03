@@ -4,3 +4,5 @@ vendor
 *.swp
 docs/generated/**/*
 composer.lock
+docs/**/*
+docs/*

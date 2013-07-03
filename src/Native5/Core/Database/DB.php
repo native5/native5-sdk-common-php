@@ -62,6 +62,7 @@ class DB
             }
 
             self::$_db->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+            self::$_db->setAttribute(\PDO::ATTR_PERSISTENT, true);
             self::$_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         }
 
