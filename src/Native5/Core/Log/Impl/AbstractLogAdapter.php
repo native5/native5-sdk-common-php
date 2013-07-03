@@ -98,6 +98,9 @@ abstract class AbstractLogAdapter implements Logger
             $newArgs[] = $arg;
         }//end foreach
 
+        // Escaping any % in the message before passing to vsprintf
+        $message = str_replace('%', '%%', $message);
+
         $message = '[%s,%d] : '.$message;
         $msg     = vsprintf($message, $newArgs);
         if ($this->_isSecure($msg) === true) {
