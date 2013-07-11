@@ -54,7 +54,7 @@ class DB
     public static function instance($configuration=null)
     {
         if (empty(self::$_db) === true) {
-            if ($configuration === null) {
+            if (!empty($configuration)) {
                 $dsn = 'mysql:host='.$configuration['host'].';dbname='.$configuration['name'];
                 self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
             } else {
