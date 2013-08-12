@@ -54,11 +54,11 @@ class DB
     public static function instance($configuration=null)
     {
         if (empty(self::$_db) === true) {
-            if ($configuration === null) {
+            if (!empty($configuration)) {
                 $dsn = 'mysql:host='.$configuration['host'].';dbname='.$configuration['name'];
                 self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
             } else {
-                self::$_db = new \PDO('mysql:host='.DBConfig::HOST.';dbname='.DBConfig::NAME, DBConfig::USER, DBConfig::PASSWD);
+                throw new \Exception('No connection settings found.'); 
             }
 
             self::$_db->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
