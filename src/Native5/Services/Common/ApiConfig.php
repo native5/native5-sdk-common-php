@@ -21,28 +21,9 @@
  * @link      http://www.docs.native5.com 
  */
 
-namespace Native5\Core\Database;
+namespace Native5\Services\Common\Api;
 
-/**
- * %ClassName% 
- * 
- * @category  <category> 
- * @package   Native5\Core\<package>
- * @author    Barada Sahu <barry@native5.com>
- * @copyright 2012 Native5. All Rights Reserved 
- * @license   See attached NOTICE.md for details
- * @version   Release: 1.0 
- * @link      http://www.docs.native5.com 
- * Created : 27-11-2012
- * Last Modified : Fri Dec 21 09:11:53 2012
- */
-class DBConfig
-{
-    const HOST = "127.0.0.1";
-    const PORT = "3306";
-    const NAME = "native5";
-    const USER = "root";
-    const PASSWD = "Pass1234";
+class ApiConfig {
+    const BASE_URL = 'http://api.native5.com/v1/';
 }
-?>
 
