@@ -21,7 +21,7 @@
  * @link      http://www.docs.native5.com 
  */
 
-namespace Native5\Services\Common\Api;
+namespace Native5\Services\Common;
 
 /**
  * %ClassName% 
