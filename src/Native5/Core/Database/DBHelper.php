@@ -100,6 +100,60 @@ class DBHelper {
     }
 
     /**
+     * beginTransaction Begin database transaction
+     * 
+     * @access public
+     * @return void
+     */
+    public function beginTransaction() {
+        // check if a transaction is already active
+        if ($this->_con->inTransaction())
+            throw new \Exception("Already inside a DB transaction. You need to commit it before beginning a new one.");
+
+        try {
+            $this->_con->beginTransaction();
+        } catch (Exception $_e) {
+            throw new \Exception("Error while beginning DB transaction: ".$pe->getMessage());
+        }
+    }
+
+    /**
+     * commitTransaction Commit begun database transaction
+     * 
+     * @access public
+     * @return void
+     */
+    public function commitTransaction() {
+        // check that a transaction is really active
+        if (!$this->_con->inTransaction())
+            throw new \Exception("Not inside a DB transaction. Cannot commit.");
+
+        try {
+            $this->_con->commit();
+        } catch (Exception $_e) {
+            throw new \Exception("Error while committing DB transaction: ".$pe->getMessage());
+        }
+    }
+
+    /**
+     * rollBackTransaction Rollback begun database transaction
+     * 
+     * @access public
+     * @return void
+     */
+    public function rollBackTransaction() {
+        // check that a transaction is really active
+        if (!$this->_con->inTransaction())
+            throw new \Exception("Not inside a DB transaction. Cannot commit.");
+
+        try {
+            $this->_con->rollBack();
+        } catch (Exception $_e) {
+            throw new \Exception("Error while rolling back DB transaction: ".$pe->getMessage());
+        }
+    }
+
+    /**
      * exec Execute prepared statement on this database, reconnects to DB if connection does not exist
      * 
      * @param object $query PDO prepared statement to execute
