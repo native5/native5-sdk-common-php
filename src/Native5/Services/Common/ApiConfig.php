@@ -21,9 +21,9 @@
  * @link      http://www.docs.native5.com 
  */
 
-namespace Native5\Services\Common\Api;
+namespace Native5\Services\Common;
 
 class ApiConfig {
-    const BASE_URL = 'http://api.native5.com/v1/';
+    const BASE_URL = 'http://api.sandbox.native5.com/v1/';
 }
 

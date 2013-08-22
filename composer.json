@@ -1,7 +1,6 @@
 {   
     "name"            : "native5/native5-sdk-common-php",
     "description"     : "Native5 Commons Module",
-    "version"         : "0.1.0",
     "keywords"        : ["core", "util", "services"],
     "homepage"        : "http://www.native5.com",
     "license"         : "proprietary",
