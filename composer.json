@@ -6,14 +6,14 @@
     "homepage"        : "http://www.native5.com",
     "license"         : "proprietary",
     "authors"         : [
-        {
-            "name"    : "Barada Sahu",
-            "email"   : "barry@native5.com"
-        },
-        {
-            "name"    : "Shamik Datta",
-            "email"   : "shamik@native5.com"
-        }
+    {
+        "name"    : "Barada Sahu",
+        "email"   : "barry@native5.com"
+    },
+    {
+        "name"    : "Shamik Datta",
+        "email"   : "shamik@native5.com"
+    }
     ],
     "support"        : {
             "email"   : "support@native5.com"
