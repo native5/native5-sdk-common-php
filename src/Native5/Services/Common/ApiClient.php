@@ -71,4 +71,16 @@ abstract class ApiClient
         $this->_remoteServer = new Client(ApiConfig::BASE_URL);
         $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts));
     }
+
+
+    /**
+     * setRemoteClient 
+     * 
+     * @param mixed $client 
+     * @access public
+     * @return void
+     */
+    public function setRemoteClient($client) {
+        $this->_remoteServer = $client;
+    }
 }
