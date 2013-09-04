@@ -56,5 +56,5 @@ class AutoResetAction implements Action
         $newPassword = $password->reset(); 
     }
 }
-?>
+
 

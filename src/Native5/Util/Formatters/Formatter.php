@@ -42,5 +42,5 @@ interface Formatter
     
     public static function format($data, $format);
 }
-?>
+
 
