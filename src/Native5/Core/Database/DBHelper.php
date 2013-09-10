@@ -72,9 +72,12 @@ class DBHelper {
      * @access public
      * @return void
      */
-    public function __construct($configuration) {
-        $this->_config = $configuration;
-        $this->dbConInit();
+    // TODO: Accept DB object instead of DB configuration
+    public function __construct($configuration = null) {
+        if (!is_null($configuration)) {
+            $this->_config = $configuration;
+            $this->dbConInit();
+        }
     }
 
     /**
@@ -85,6 +88,11 @@ class DBHelper {
      */
     public function __destruct() {
         $this->_con = null;
+    }
+
+    // TODO: Remove this method once everyone follows this
+    public function setDB(Native5\Core\Database\DB $db) {
+        $this->_con = $db;
     }
 
     /**

@@ -56,7 +56,12 @@ class DB
         if (empty(self::$_db) === true) {
             if (!empty($configuration)) {
                 $dsn = 'mysql:host='.$configuration['host'].';dbname='.$configuration['name'];
-                self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
+                try {
+                    self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
+                } catch(\PDOException $pe) {
+                    throw new \RuntimeException("Cannot connect to DB '".$this->_config['name']."' with user '".$this->_config['user']."'".PHP_EOL.
+                            "Message: ".$pe->getMessage());
+                }
             } else {
                 throw new \Exception('No connection settings found.'); 
             }
@@ -64,6 +69,9 @@ class DB
             self::$_db->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
             self::$_db->setAttribute(\PDO::ATTR_PERSISTENT, true);
             self::$_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            self::$_db->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES 'UTF8'");
+            self::$_db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+            self::$_db->setAttribute(\PDO::ATTR_ORACLE_NULLS, \PDO::NULL_TO_STRING);
         }
 
         return self::$_db;
