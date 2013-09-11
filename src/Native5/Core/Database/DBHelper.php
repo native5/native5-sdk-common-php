@@ -91,7 +91,7 @@ class DBHelper {
     }
 
     // TODO: Remove this method once everyone follows this
-    public function setDB(Native5\Core\Database\DB $db) {
+    public function setDB(\PDO $db) {
         $this->_con = $db;
     }
 
