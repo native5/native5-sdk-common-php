@@ -59,7 +59,7 @@ class DB
                 try {
                     self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
                 } catch(\PDOException $pe) {
-                    throw new \RuntimeException("Cannot connect to DB '".$this->_config['name']."' with user '".$this->_config['user']."'".PHP_EOL.
+                    throw new \RuntimeException("Cannot connect to DB '".$configuration['name']."' with user '".$configuration['user']."'".PHP_EOL.
                             "Message: ".$pe->getMessage());
                 }
             } else {
