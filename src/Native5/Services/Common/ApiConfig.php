@@ -38,7 +38,7 @@ class ApiConfig {
         }
     }
 
-    public function instance($configFile='config/settings.yml')
+    public static function instance($configFile='config/settings.yml')
     {
         if(is_null(self::$_instance)) {
             self::$_instance = new self($configFile);
