@@ -59,6 +59,11 @@ class DBConfigFactory extends YamlConfigFactory {
     }
 
     private function _checkConfig() {
+        // Database configuration can be namespaced with the 'database' keyword
+        if (isset($this->_config['database']))
+            $this->_config = $this->_config['database'];
+
+        // Check each configuration entry
         if (empty($this->_config) || !is_array($this->_config))
             throw new \InvalidArgumentException("Configuration should be an array");
         else if (empty($this->_config['type']))
