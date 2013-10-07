@@ -52,32 +52,17 @@ class DBHelper {
      */
     const DELETE = 3;
 
-    private $_config;
-    private $_con;
+    protected $_con;
 
     /**
-     * __construct  Create a DB object
+     * __construct  Create a DBHelper instance
      * 
-     * @param mixed[] $configuration Database configuration {
-     *     @type string "type" Database type as used in PDO DSN
-     *     @type string "host" Database host
-     *     @type integer "name" Database name
-     *     @type boolean "username" Database username
-     *     @type string "password" Database password
-     * }
-     * 
-     * @throws InvalidArgumentException if configuration is not well formed
-     * @throws RuntimeException if cannot connect to DB passed in configuration
-     *
+     * @param db DB Object
      * @access public
      * @return void
      */
-    // TODO: Accept DB object instead of DB configuration
-    public function __construct($configuration = null) {
-        if (!is_null($configuration)) {
-            $this->_config = $configuration;
-            $this->dbConInit();
-        }
+    public function __construct(DB $db) {
+        $this->_con = $db;
     }
 
     /**
@@ -90,11 +75,6 @@ class DBHelper {
         $this->_con = null;
     }
 
-    // TODO: Remove this method once everyone follows this
-    public function setDB(\PDO $db) {
-        $this->_con = $db;
-    }
-
     /**
      * prepare Prepare query from sql query
      * 
@@ -103,7 +83,7 @@ class DBHelper {
      * @return object prepared statement
      * @throws PDOException if query was not successful
      */
-    public function prepare ($sql) {
+    public function prepare($sql) {
         return $this->_con->prepare($sql);
     }
 
@@ -173,7 +153,7 @@ class DBHelper {
      *                           UPDATE | DELETE- true on success, throws exception otherwise
      * @throws PDOException if cannot execute the query
      */
-    public function exec ($statement, $type = self::SELECT) {
+    public function exec($statement, $type = self::SELECT) {
         // Execute
         try {
             $statement->execute();
@@ -198,47 +178,6 @@ class DBHelper {
         $statement->closeCursor();
 
         return $result;
-    }
-
-    /**
-     * dbConInit Initializes the PDO database object for the provided database and user
-     * 
-     * @access private
-     * @return boolean true on success, false otherwise
-     */
-    private function dbConInit () {
-        // Check the configuration
-        if (empty($this->_config) || !is_array($this->_config))
-            throw new \InvalidArgumentException("Configuration should be an array");
-        else if (empty($this->_config['type']))
-            throw new \InvalidArgumentException("DB type not specified in configuration");
-        else if (empty($this->_config['host']))
-            throw new \InvalidArgumentException("DB host not specified in configuration");
-        else if (empty($this->_config['name']))
-            throw new \InvalidArgumentException("DB name not specified in configuration");
-        else if (empty($this->_config['username']))
-            throw new \InvalidArgumentException("DB username not specified in configuration");
-        else if (empty($this->_config['password']))
-            throw new \InvalidArgumentException("DB password not specified in configuration");
-
-        $dsn = $this->_config['type'].":host=".$this->_config['host'].";dbname=".$this->_config['name'];
-
-        $opt = array(
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, // throw exceptions when error occur
-            \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'", // set UTF8 names
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC, // always fetch only associative arrays
-            \PDO::ATTR_PERSISTENT => true, // use persistent connections
-            \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_TO_STRING // convert NULLs to empty strings
-        );
-
-        try {
-            $this->_con = new \PDO($dsn, $this->_config['username'], $this->_config['password'], $opt);
-        } catch(\PDOException $pe) {
-            throw new \RuntimeException("Cannot connect to DB '".$this->_config['name']."' with user '".$this->_config['username']."'".PHP_EOL.
-                    "Message: ".$pe->getMessage());
-        }
-
-        return true;
     }
 
 }//end class
