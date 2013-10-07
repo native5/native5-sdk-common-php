@@ -64,8 +64,8 @@ class DB
      */
     private static function instance(DBConfig $configuration)
     {
-        $port = $connection->getPort();
-        $port = !empty($port) ? $port : 22;
+        $port = $configuration->getPort();
+        $port = !empty($port) ? $port : 3306;
         $dsn = $configuration->getType().':host='.$configuration->getHost().';port='.$port.';dbname='.$configuration->getName();
         $dbKey = md5($dsn.'.'.$configuration->getUser());
 

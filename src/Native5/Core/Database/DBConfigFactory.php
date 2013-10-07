@@ -23,6 +23,8 @@
 
 namespace Native5\Core\Database;
 
+use Native5\Core\YamlConfigFactory;
+
 class DBConfigFactory extends YamlConfigFactory {
 
     /**

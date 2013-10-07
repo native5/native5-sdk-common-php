@@ -48,7 +48,7 @@ abstract class YamlConfigFactory
      * @return void
      */
     public function __construct($configFile) {
-        $this->_config = $this->_parse($config);
+        $this->_config = $this->_parse($configFile);
     }
 
     /**
@@ -69,8 +69,8 @@ abstract class YamlConfigFactory
      * @return void
      * @note needs to be called after setMasterConfig()
      */
-    public function override($config, $strict = false) {
-        $localConfig = $this->_parse($config, $strict);
+    public function override($configFile, $strict = false) {
+        $localConfig = $this->_parse($configFile, $strict);
         
         if (!empty($localConfig))
             $this->_config = array_replace_recursive($this->_config, $localConfig);
