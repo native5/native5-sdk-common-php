@@ -28,7 +28,7 @@ use Native5\Core\YamlConfigFactory;
 class DBConfigFactory extends YamlConfigFactory {
 
     /**
-     * constructConfig Wrap the associative configuration array inside a DBConfig class
+     * makeConfig Wrap the associative configuration array inside a DBConfig class
      * 
      * @access public
      * @return void

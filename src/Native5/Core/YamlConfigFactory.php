@@ -52,7 +52,7 @@ abstract class YamlConfigFactory
     }
 
     /**
-     * constructConfig Should wrap the associative array inside a getter/setter class
+     * makeConfig Should wrap the associative array inside a getter/setter class
      * 
      * @abstract
      * @access public
