@@ -90,6 +90,7 @@ class DB
         self::$_dbs[$dbKey]->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES 'UTF8'");
         self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_ORACLE_NULLS, \PDO::NULL_TO_STRING);
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_EMULATE_PREPARES, 1);
 
         return self::$_dbs[$dbKey];
     }//end instance()
