@@ -12,34 +12,56 @@
  *  limitations under the License.
  *  PHP version 5.3+
  *
- * @category  Connectors
+ * @category  Sessions
  * @package   Native5\Core\Connectors\Database
- * @author    Shamik Datta <shamik@native5.com>
+ * @author    Barada Sahu <barry@native5.com>
  * @copyright 2012 Native5. All Rights Reserved
  * @license   See attached LICENSE for details
  * @version   GIT: $gitid$
  * @link      http://www.docs.native5.com
  */
 
-namespace Native5\Core\Database;
+namespace Native5\Core;
 
-class DBConfiguration {
-    private $_config;
+/**
+ * DB 
+ *
+ * @category  Connectors 
+ * @package   Native5\Core\Connectors\Database
+ * @author    Barada Sahu <barry@native5.com>
+ * @copyright 2012 Native5. All Rights Reserved
+ * @license   See attached NOTICE.md for details
+ * @version   Release: 1.0
+ * @link      http://www.docs.native5.com
+ * Created : 27-11-2012
+ * Last Modified : Fri Dec 21 09:11:53 2012
+ */
+abstract class YamlConfigFactory
+{
+    protected $_config;
 
     /**
-     * setMasterConfig sets the master (base) configuration file
+     * __construct Construct a Yaml configuration
      * 
-     * @param mixed $config path to master config file
+     * @param mixed $configFile The base (master) yaml configuration file
      * @access public
      * @return void
-     * @note needs to be called before setLocalConfig()
      */
-    public function setMasterConfig($config) {
+    public function __construct($configFile) {
         $this->_config = $this->_parse($config);
     }
 
     /**
-     * setLocalConfig sets the local (override) configuration file
+     * constructConfig Should wrap the associative array inside a getter/setter class
+     * 
+     * @abstract
+     * @access public
+     * @return void
+     */
+    abstract protected function makeConfig();
+
+    /**
+     * setOverridingConfig sets the local (override) configuration file
      * 
      * @param mixed $config path to local config file
      * @param mixed $strict whether to throw an exception if file is not found
@@ -47,7 +69,7 @@ class DBConfiguration {
      * @return void
      * @note needs to be called after setMasterConfig()
      */
-    public function setLocalConfig($config, $strict = false) {
+    public function override($config, $strict = false) {
         $localConfig = $this->_parse($config, $strict);
         
         if (!empty($localConfig))
@@ -61,8 +83,8 @@ class DBConfiguration {
      * @return void
      * @note should be called only after you have set your master and local configs
      */
-    public function getConfiguration() {
-        return $this->_config;
+    public function getConfig() {
+        return $this->makeConfig();
     }
 
     private function _parse($config, $exception = true) {
