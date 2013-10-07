@@ -76,6 +76,16 @@ class DBHelper {
     }
 
     /**
+     * getConnection Returns the PDO connection instance
+     * 
+     * @access public
+     * @return void
+     */
+    public function getConnection() {
+        return $this->_con;
+    }
+
+    /**
      * prepare Prepare query from sql query
      * 
      * @param string $sql SQL query string
