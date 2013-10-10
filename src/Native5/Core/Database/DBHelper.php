@@ -169,8 +169,7 @@ class DBHelper {
             $statement->execute();
         } catch (\PDOException $pe) {
             $statement->closeCursor();
-            $this->dbConInit(); // try reconnecting once
-            $statement->execute();
+            throw new \Exception("Error while executing query: ".$pe->getMessage());
         }
 
         // Process Result based on the query type
