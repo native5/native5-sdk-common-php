@@ -62,20 +62,19 @@ class DB
      * @access private
      * @return void
      */
-    private static function instance(DBConfig $configuration)
+    private static function instance(DBConfig $configuration, $renew = false)
     {
         $port = $configuration->getPort();
         $port = !empty($port) ? $port : 3306;
         $dsn = $configuration->getType().':host='.$configuration->getHost().';port='.$port.';dbname='.$configuration->getName();
         $dbKey = md5($dsn.'.'.$configuration->getUser());
 
-        if (isset(self::$_dbs[$dbKey]) && !empty(self::$_dbs[$dbKey])) {
+        if (!$renew && isset(self::$_dbs[$dbKey]) && !empty(self::$_dbs[$dbKey]))
             return self::$_dbs[$dbKey];
-        }
 
         if (empty($configuration))
             throw new \Exception('Empty connection settings provided'); 
-            
+
         // Create a PDO Instance for this user + database combination
         try {
             self::$_dbs[$dbKey] = new \PDO($dsn, $configuration->getUser(), $configuration->getPassword());

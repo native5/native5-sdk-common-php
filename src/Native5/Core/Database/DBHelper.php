@@ -94,7 +94,34 @@ class DBHelper {
      * @throws PDOException if query was not successful
      */
     public function prepare($sql) {
-        return $this->_con->prepare($sql);
+        try {
+            return $this->_con->prepare($sql);
+        } catch (\PDOException $pe) {
+            throw new \Exception("Error in preparing statement:: ".$sql.PHP_EOL."Message: ".$pe->getMessage());
+        }
+    }
+
+    /**
+     * bindValues Bind values to a prepared statement
+     * 
+     * @param object $statement PDOStatement object
+     * @param array $valArr array with statment placeholders mapped to values to bind
+     *
+     * @access public
+     * @return object prepared statement with bound values
+     * @throws PDOException if could not bind parameter
+     */
+    public function bindValues ($statement, $valArr) {
+        // Bind the values
+        foreach ($valArr as $key=>$val) {
+            try {
+                $statement->bindValue($key, $val);
+            } catch (\PDOException $pe) {
+                echo "Error in binding parameter: ".$pe->getMessage();
+            }
+        }
+
+        return $statement;
     }
 
     /**
@@ -169,8 +196,7 @@ class DBHelper {
             $statement->execute();
         } catch (\PDOException $pe) {
             $statement->closeCursor();
-            $this->dbConInit(); // try reconnecting once
-            $statement->execute();
+            throw new \Exception("Could not execute statement successfully: ".$pe->getMessage());
         }
 
         // Process Result based on the query type
@@ -188,6 +214,22 @@ class DBHelper {
         $statement->closeCursor();
 
         return $result;
+    }
+
+    /**
+     * execQuery Wrapper method which prepares the query, binds values and executes it
+     * 
+     * @param mixed $query Query string
+     * @param array $valArr array with statment placeholders mapped to values to bind
+     * @param mixed $queryType Type of database query - refer class constants
+     *
+     * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
+     *                           INSERT- Database ID for inserted row, throws exception otherwise
+     *                           UPDATE | DELETE- true on success, throws exception otherwise
+     * @throws PDOException if cannot execute the query
+     */
+    public function execQuery($query, $valArr, $queryType = self::SELECT) {
+        return $this->exec($this->bindValues($this->prepare($query), $valArr), $queryType);
     }
 
 }//end class
