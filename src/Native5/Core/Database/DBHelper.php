@@ -196,7 +196,7 @@ class DBHelper {
             $statement->execute();
         } catch (\PDOException $pe) {
             $statement->closeCursor();
-            throw new \Exception("Could not execute statement successfully: ".$pe->getMessage());
+            throw new \Exception("Error while executing query: ".$pe->getMessage());
         }
 
         // Process Result based on the query type
