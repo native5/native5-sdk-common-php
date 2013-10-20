@@ -23,6 +23,8 @@
 
 namespace Native5\Core\Database;
 
+use Native5\Core\Caching\Cache;
+
 /**
  * DBHelper
  */
@@ -53,16 +55,19 @@ class DBHelper {
     const DELETE = 3;
 
     protected $_con;
+    protected $_statementCache;
 
     /**
      * __construct  Create a DBHelper instance
      * 
-     * @param db DB Object
+     * @param object PDO object
+     *
      * @access public
-     * @return void
+     * @return object instance of DBHelper object
      */
     public function __construct(\PDO $db) {
         $this->_con = $db;
+        $this->_statementCache = new Cache();
     }
 
     /**
@@ -72,6 +77,7 @@ class DBHelper {
      * @return void
      */
     public function __destruct() {
+        unset($this->_con);
         $this->_con = null;
     }
 
@@ -79,7 +85,7 @@ class DBHelper {
      * getConnection Returns the PDO connection instance
      * 
      * @access public
-     * @return void
+     * @return object PDO object for the DB Connection
      */
     public function getConnection() {
         return $this->_con;
@@ -89,16 +95,24 @@ class DBHelper {
      * prepare Prepare query from sql query
      * 
      * @param string $sql SQL query string
+     *
      * @access public
      * @return object prepared statement
-     * @throws PDOException if query was not successful
+     * @throws Exception if statement could not be prepared successfuly
      */
     public function prepare($sql) {
+        $sqlKey = md5($sql);
+        if ($this->_statementCache->exists($sqlKey))
+            return $this->_statementCache->get($sqlKey);
+
         try {
-            return $this->_con->prepare($sql);
+            $statement = $this->_con->prepare($sql);
         } catch (\PDOException $pe) {
-            throw new \Exception("Error in preparing statement:: ".$sql.PHP_EOL."Message: ".$pe->getMessage());
+            throw new \Exception("Error in preparing statement:: query: ".$sql.PHP_EOL."Message: ".$pe->getMessage());
         }
+
+        $this->_statementCache->set($sqlKey, $statement);
+        return $statement;
     }
 
     /**
@@ -109,9 +123,12 @@ class DBHelper {
      *
      * @access public
      * @return object prepared statement with bound values
-     * @throws PDOException if could not bind parameter
+     * @throws Exception if could not bind parameter to statement successfuly
      */
-    public function bindValues ($statement, $valArr) {
+    public function bindValues (\PDOStatement $statement, $valArr = array()) {
+        if (empty($valArr))
+            return $statement;
+
         // Bind the values
         foreach ($valArr as $key=>$val) {
             try {
@@ -129,6 +146,7 @@ class DBHelper {
      * 
      * @access public
      * @return void
+     * @throws Exception if already inside a transaction of if could not begin transaction successfuly
      */
     public function beginTransaction() {
         // check if a transaction is already active
@@ -147,6 +165,7 @@ class DBHelper {
      * 
      * @access public
      * @return void
+     * @throws Exception if not inside a transaction of if could not commit transaction successfuly
      */
     public function commitTransaction() {
         // check that a transaction is really active
@@ -165,6 +184,7 @@ class DBHelper {
      * 
      * @access public
      * @return void
+     * @throws Exception if not inside a transaction of if could not rollback transaction successfuly
      */
     public function rollBackTransaction() {
         // check that a transaction is really active
@@ -188,9 +208,9 @@ class DBHelper {
      * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
      *                           INSERT- Database ID for inserted row, throws exception otherwise
      *                           UPDATE | DELETE- true on success, throws exception otherwise
-     * @throws PDOException if cannot execute the query
+     * @throws Exception if could not execute the query successfuly
      */
-    public function exec($statement, $type = self::SELECT) {
+    public function exec(\PDOStatement $statement, $type = self::SELECT) {
         // Execute
         try {
             $statement->execute();
@@ -226,11 +246,11 @@ class DBHelper {
      * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
      *                           INSERT- Database ID for inserted row, throws exception otherwise
      *                           UPDATE | DELETE- true on success, throws exception otherwise
-     * @throws PDOException if cannot execute the query
+     * @throws Exception if could not prepare statement, or bind values or execute query successfuly
      */
-    public function execQuery($query, $valArr, $queryType = self::SELECT) {
+    public function execQuery($query, $valArr = array(), $queryType = self::SELECT) {
         return $this->exec($this->bindValues($this->prepare($query), $valArr), $queryType);
     }
 
-}//end class
+}
 
