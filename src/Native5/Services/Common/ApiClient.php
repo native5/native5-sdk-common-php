@@ -24,6 +24,7 @@
 namespace Native5\Services\Common;
 
 use Guzzle\Http\Client;
+use Guzzle\Common\Event;
 
 /**
  * ApiClient 
