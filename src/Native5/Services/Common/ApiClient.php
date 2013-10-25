@@ -74,7 +74,7 @@ abstract class ApiClient
         $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts));
         $this->_remoteServer->getEventDispatcher()->addListener(
             'request.error', 
-            function (Event $e) {
+            function (Event $event) {
                 if ($event['response']->getStatusCode() >= 400 && $event['response']->getStatusCode() < 500) {
                     $event->stopPropagation();
                     $logger->debug('Incoming Response '.print_r($event['response'], 1));
