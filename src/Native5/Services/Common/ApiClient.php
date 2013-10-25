@@ -12,7 +12,7 @@
  *	limitations under the License.
  *  PHP version 5.3+
  *
- * @category  <category> 
+ * @category  API 
  * @package   Native5\Core\<package>
  * @author    Barada Sahu <barry@native5.com>
  * @copyright 2012 Native5. All Rights Reserved 
@@ -26,7 +26,7 @@ namespace Native5\Services\Common;
 use Guzzle\Http\Client;
 
 /**
- * %ClassName% 
+ * ApiClient 
  * 
  * @category  API 
  * @package   Native5\Core\Api
@@ -54,22 +54,35 @@ abstract class ApiClient
     public function __construct()
     {
         global $app;
+        global $logger;
         try {
             $sharedKey = $app->getConfiguration()->getSharedKey();
             $secretKey = $app->getConfiguration()->getSecretKey();
-            if(empty($secretKey) || empty($sharedKey)) 
+            if (empty($secretKey) || empty($sharedKey)) {
                 throw new \Exception('Need shared & secret key, to be able to talk with remote server');
+            } 
         } catch (\Exception $e) {
             throw new \Exception('Need shared & secret key, to be able to talk with remote server');
         }
         $signatureOpts              = array();
-        $signatureOpts['keyId']     = $sharedKey; 
+        $signatureOpts['keyId']     = $sharedKey;
         $signatureOpts['key']       = $secretKey; 
         $signatureOpts['algorithm'] = 'sha1';
-        $signatureOpts['headers']   = array('Date', 'X-Hmac-Nonce');
-        
         $this->_remoteServer = new Client(ApiConfig::BASE_URL);
         $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts));
+        $this->_remoteServer->getEventDispatcher()->addListener(
+            'request.error', 
+            function (Event $e) {
+                if ($event['response']->getStatusCode() >= 400 && $event['response']->getStatusCode() < 500) {
+                    $event->stopPropagation();
+                    $logger->debug('Incoming Response '.print_r($event['response'], 1));
+                    throw new ClientException('Error in data, please recheck inputs.');
+                } else if ($event['response']->getStatusCode() >= 500 ) { 
+                    $event->stopPropagation();
+                    throw new ServiceException('We are currently facing some technical issues, please try again in some time.');
+                }
+            }
+        );
     }
 
 
