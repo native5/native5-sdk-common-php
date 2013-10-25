@@ -77,7 +77,7 @@ abstract class ApiClient
                     $event->stopPropagation();
                     $logger->debug('Incoming Response '.print_r($event['response'], 1));
                     throw new ClientException('Error in data, please recheck inputs.');
-                } else if ($event['response']->getStatusCode() >= 500 ) { 
+                } else if ($event['response']->getStatusCode() >= 500 ) {
                     $event->stopPropagation();
                     throw new ServiceException('We are currently facing some technical issues, please try again in some time.');
                 }
