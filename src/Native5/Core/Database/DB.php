@@ -39,8 +39,19 @@ namespace Native5\Core\Database;
 class DB
 {
 
-    private static $_db;
+    private static $_dbs;
 
+    /**
+     * Factory method for instantiating a db object
+     * 
+     * @static
+     * @access public
+     * @return void
+     */
+    public static function factory(DBConfig $configuration)
+    {
+        return self::instance($configuration);
+    }//end factory()
 
     /**
      * instance 
@@ -48,46 +59,43 @@ class DB
      * @param mixed $configuration Database configuration
      *
      * @static
-     * @access public
+     * @access private
      * @return void
      */
-    public static function instance($configuration=null)
+    private static function instance(DBConfig $configuration, $renew = false)
     {
-        if (empty(self::$_db) === true) {
-            if (!empty($configuration)) {
-                $dsn = 'mysql:host='.$configuration['host'].';dbname='.$configuration['name'];
-                self::$_db = new \PDO($dsn, $configuration['user'], $configuration['password']);
-            } else {
-                throw new \Exception('No connection settings found.'); 
-            }
+        $port = $configuration->getPort();
+        $port = !empty($port) ? $port : 3306;
+        $dsn = $configuration->getType().':host='.$configuration->getHost().';port='.$port.';dbname='.$configuration->getName();
+        $dbKey = md5($dsn.'.'.$configuration->getUser());
 
-            self::$_db->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-            self::$_db->setAttribute(\PDO::ATTR_PERSISTENT, true);
-            self::$_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        if (!$renew && isset(self::$_dbs[$dbKey]) && !empty(self::$_dbs[$dbKey]))
+            return self::$_dbs[$dbKey];
+
+        if (empty($configuration))
+            throw new \Exception('Empty connection settings provided'); 
+
+        // Create a PDO Instance for this user + database combination
+        try {
+            self::$_dbs[$dbKey] = new \PDO($dsn, $configuration->getUser(), $configuration->getPassword());
+        } catch(\PDOException $pe) {
+            throw new \RuntimeException("Cannot connect to DB '".$configuration->getName()."' with user '".$configuration->getUser()."'".PHP_EOL.
+                    "Message: ".$pe->getMessage());
         }
 
-        return self::$_db;
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_PERSISTENT, true);
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        self::$_dbs[$dbKey]->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES 'UTF8'");
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_ORACLE_NULLS, \PDO::NULL_TO_STRING);
+        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_EMULATE_PREPARES, 1);
 
+        return self::$_dbs[$dbKey];
     }//end instance()
-
-
-    /**
-     * Factory method for instantiating a db object. 
-     * 
-     * @static
-     * @access public
-     * @return void
-     */
-    public static function factory()
-    {
-        return new self;
-
-    }//end factory()
 
 
     private function __construct() {}
 
-
 }//end class
 
-?>
