@@ -50,12 +50,12 @@ class FileLogHandler implements ILogHandler
 
     // Syslog to Monolog mapping.
     private static $_mapping = array(
-        LOG_DEBUG   => Logger::DEBUG,
-        LOG_INFO    => Logger::INFO,
-        LOG_WARNING => Logger::WARNING,
-        LOG_ERR     => Logger::ERROR,
-        LOG_CRIT    => Logger::CRITICAL,
-        LOG_ALERT   => Logger::ALERT,
+        'LOG_DEBUG'   => Logger::DEBUG,
+        'LOG_INFO'    => Logger::INFO,
+        'LOG_WARNING' => Logger::WARNING,
+        'LOG_ERR'     => Logger::ERROR,
+        'LOG_CRIT'    => Logger::CRITICAL,
+        'LOG_ALERT'   => Logger::ALERT,
     );
 
 
@@ -67,7 +67,7 @@ class FileLogHandler implements ILogHandler
      * @access public
      * @return void
      */
-    public function __construct($file='logs/application.log', $level=LOG_INFO)
+    public function __construct($file='logs/application.log', $level='LOG_INFO')
     {
         $this->logger = new Logger('Native5');
         $this->logger->pushHandler(new StreamHandler($file, self::$_mapping[$level]));
@@ -93,7 +93,7 @@ class FileLogHandler implements ILogHandler
      * @access public
      * @return void
      */
-    public function writeLog($message, $priority=LOG_INFO)
+    public function writeLog($message, $priority='LOG_INFO')
     {
         $this->logger->addRecord(
             self::$_mapping[$priority],

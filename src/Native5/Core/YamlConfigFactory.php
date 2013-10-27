@@ -77,7 +77,7 @@ abstract class YamlConfigFactory
     }
 
     /**
-     * getConfiguration get the merged configuration
+     * getConfig get the merged configuration wrapped inside a Configuration class
      * 
      * @access public
      * @return void
@@ -87,11 +87,29 @@ abstract class YamlConfigFactory
         return $this->makeConfig();
     }
 
+    /**
+     * getRawConfig get the merged configuration as an associative array
+     * 
+     * @access public
+     * @return void
+     * @note should be called only after you have set your master and local configs
+     */
+    public function getRawConfig() {
+        return $this->_config;
+    }
+
+
+    // ****** Private Functions Follow ****** //
+
     private function _parse($config, $exception = true) {
         $configArr = array();
 
-        if ((empty($config) || !file_exists($config)) && $exception)
-            throw new \Exception("Empty config file or file does not exist: ".$config);
+        if ((empty($config) || !file_exists($config))) {
+            if ($exception)
+                throw new \Exception("Empty config file or file does not exist: ".$config);
+            else
+                return array();
+        }
 
         if (!($configArr = @yaml_parse_file($config)) && $exception)
             throw new \Exception("Not a valid yaml file: ".$config);
