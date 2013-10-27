@@ -56,7 +56,7 @@ interface Logger
      * @access public
      * @return void
      */
-    public function log($message, $args, $priority=LOG_INFO);
+    public function log($message, $args, $priority='LOG_INFO');
 
 
     /**
@@ -134,9 +134,8 @@ interface Logger
      * @access public
      * @return void
      */
-    public function addHandler($destination, $pattern=Logger::ALL, $level=LOG_INFO);
+    public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO');
 
 
 }//end interface
 
-?>

@@ -121,4 +121,3 @@ class FileLogHandler implements ILogHandler
 
 }//end class
 
-?>

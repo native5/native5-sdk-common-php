@@ -80,7 +80,7 @@ abstract class AbstractLogAdapter implements Logger
      * @access public
      * @return void
      */
-    public function log($message, $args, $priority=LOG_INFO)
+    public function log($message, $args, $priority='LOG_INFO')
     {
         if (array_key_exists('FILENAME', $args) === false) {
             $backtrace        = debug_backtrace();
@@ -136,7 +136,7 @@ abstract class AbstractLogAdapter implements Logger
         $backtrace        = debug_backtrace();
         $args['FILENAME'] = $backtrace[0]['file'];
         $args['LINENO']   = $backtrace[0]['line'];
-        $this->log($message, $args, LOG_INFO);
+        $this->log($message, $args, 'LOG_INFO');
 
     }//end info()
 
@@ -155,7 +155,7 @@ abstract class AbstractLogAdapter implements Logger
         $backtrace        = debug_backtrace();
         $args['FILENAME'] = $backtrace[0]['file'];
         $args['LINENO']   = $backtrace[0]['line'];
-        $this->log($message, $args, LOG_DEBUG);
+        $this->log($message, $args, 'LOG_DEBUG');
 
     }//end debug()
 
@@ -174,7 +174,7 @@ abstract class AbstractLogAdapter implements Logger
         $backtrace        = debug_backtrace();
         $args['FILENAME'] = $backtrace[0]['file'];
         $args['LINENO']   = $backtrace[0]['line'];
-        $this->log($message, $args, LOG_WARNING);
+        $this->log($message, $args, 'LOG_WARNING');
 
     }//end warn()
 
@@ -193,7 +193,7 @@ abstract class AbstractLogAdapter implements Logger
         $backtrace        = debug_backtrace();
         $args['FILENAME'] = $backtrace[0]['file'];
         $args['LINENO']   = $backtrace[0]['line'];
-        $this->log($message, $args, LOG_ERR);
+        $this->log($message, $args, 'LOG_ERR');
 
     }//end error()
 
@@ -212,7 +212,7 @@ abstract class AbstractLogAdapter implements Logger
         $backtrace        = debug_backtrace();
         $args['FILENAME'] = $backtrace[0]['file'];
         $args['LINENO']   = $backtrace[0]['line'];
-        $this->log($message, $args, LOG_ALERT);
+        $this->log($message, $args, 'LOG_ALERT');
 
     }//end alert()
 
@@ -226,7 +226,7 @@ abstract class AbstractLogAdapter implements Logger
      * @access public
      * @return void
      */
-    public function addHandler($destination, $pattern=Logger::ALL, $level=LOG_INFO)
+    public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO')
     {
         $this->_logPatterns[$pattern] = $this->getHandler($destination, $level);
 
