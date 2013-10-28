@@ -70,7 +70,7 @@ abstract class ApiClient
         $signatureOpts['key']       = $secretKey; 
         $signatureOpts['algorithm'] = 'sha1';
         $signatureOpts['headers']   = array('Date', 'X-Hmac-Nonce');
-        $this->_remoteServer = new Client(ApiConfig::instance()->getApiUrl());
+        $this->_remoteServer = new Client($app->getConfiguration()->getApiUrl());
         $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts));
         $this->_remoteServer->getEventDispatcher()->addListener(
             'request.error', 
@@ -98,3 +98,4 @@ abstract class ApiClient
         $this->_remoteServer = $client;
     }
 }
+
