@@ -24,6 +24,29 @@
 namespace Native5\Services\Common;
 
 class ApiConfig {
-    const BASE_URL = 'http://api.sandbox.native5.com/v1/';
+
+    protected static $_instance;
+    protected $_apiUrl;
+
+    protected function __construct($configFile) {
+        if (!empty($configFile) && file_exists($configFile)) {
+            $configOpts = yaml_parse_file($configFile);
+            $this->_apiUrl = $configOpts['url'];
+        } else {
+            $this->_apiUrl = self::BASE_URL; 
+        }
+    }
+
+    public static function instance($configFile='config/settings.yml')
+    {
+        if(is_null(self::$_instance)) {
+            self::$_instance = new self($configFile);
+        }
+        return self::$_instance;
+    }
+
+    public function getApiUrl() {
+        return $this->_apiUrl;
+    }
 }
 

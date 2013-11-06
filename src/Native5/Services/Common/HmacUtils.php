@@ -24,7 +24,7 @@
 namespace Native5\Services\Common;
 
 /**
- * %ClassName% 
+ * Utility class to generate HMAC representation given the request parameters 
  * 
  * @category  <category> 
  * @package   Native5\Core\<package>
@@ -55,5 +55,5 @@ class HmacUtils
     }
 
 }
-?>
+
 

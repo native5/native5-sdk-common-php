@@ -23,6 +23,8 @@
 
 namespace Native5\Core\Database;
 
+use Native5\Core\Caching\Cache;
+
 /**
  * DBHelper
  */
@@ -52,29 +54,20 @@ class DBHelper {
      */
     const DELETE = 3;
 
-    private $_config;
-    private $_con;
+    protected $_con;
+    protected $_statementCache;
 
     /**
-     * __construct  Create a DB object
+     * __construct  Create a DBHelper instance
      * 
-     * @param mixed[] $configuration Database configuration {
-     *     @type string "type" Database type as used in PDO DSN
-     *     @type string "host" Database host
-     *     @type integer "name" Database name
-     *     @type boolean "username" Database username
-     *     @type string "password" Database password
-     * }
-     * 
-     * @throws InvalidArgumentException if configuration is not well formed
-     * @throws RuntimeException if cannot connect to DB passed in configuration
+     * @param object PDO object
      *
      * @access public
-     * @return void
+     * @return object instance of DBHelper object
      */
-    public function __construct($configuration) {
-        $this->_config = $configuration;
-        $this->dbConInit();
+    public function __construct(\PDO $db) {
+        $this->_con = $db;
+        $this->_statementCache = new Cache();
     }
 
     /**
@@ -84,19 +77,68 @@ class DBHelper {
      * @return void
      */
     public function __destruct() {
+        unset($this->_con);
         $this->_con = null;
+    }
+
+    /**
+     * getConnection Returns the PDO connection instance
+     * 
+     * @access public
+     * @return object PDO object for the DB Connection
+     */
+    public function getConnection() {
+        return $this->_con;
     }
 
     /**
      * prepare Prepare query from sql query
      * 
      * @param string $sql SQL query string
+     *
      * @access public
      * @return object prepared statement
-     * @throws PDOException if query was not successful
+     * @throws Exception if statement could not be prepared successfuly
      */
-    public function prepare ($sql) {
-        return $this->_con->prepare($sql);
+    public function prepare($sql) {
+        $sqlKey = md5($sql);
+        if ($this->_statementCache->exists($sqlKey))
+            return $this->_statementCache->get($sqlKey);
+
+        try {
+            $statement = $this->_con->prepare($sql);
+        } catch (\PDOException $pe) {
+            throw new \Exception("Error in preparing statement:: query: ".$sql.PHP_EOL."Message: ".$pe->getMessage());
+        }
+
+        $this->_statementCache->set($sqlKey, $statement);
+        return $statement;
+    }
+
+    /**
+     * bindValues Bind values to a prepared statement
+     * 
+     * @param object $statement PDOStatement object
+     * @param array $valArr array with statment placeholders mapped to values to bind
+     *
+     * @access public
+     * @return object prepared statement with bound values
+     * @throws Exception if could not bind parameter to statement successfuly
+     */
+    public function bindValues (\PDOStatement $statement, $valArr = array()) {
+        if (empty($valArr))
+            return $statement;
+
+        // Bind the values
+        foreach ($valArr as $key=>$val) {
+            try {
+                $statement->bindValue($key, $val);
+            } catch (\PDOException $pe) {
+                echo "Error in binding parameter: ".$pe->getMessage();
+            }
+        }
+
+        return $statement;
     }
 
     /**
@@ -104,6 +146,7 @@ class DBHelper {
      * 
      * @access public
      * @return void
+     * @throws Exception if already inside a transaction of if could not begin transaction successfuly
      */
     public function beginTransaction() {
         // check if a transaction is already active
@@ -122,6 +165,7 @@ class DBHelper {
      * 
      * @access public
      * @return void
+     * @throws Exception if not inside a transaction of if could not commit transaction successfuly
      */
     public function commitTransaction() {
         // check that a transaction is really active
@@ -140,6 +184,7 @@ class DBHelper {
      * 
      * @access public
      * @return void
+     * @throws Exception if not inside a transaction of if could not rollback transaction successfuly
      */
     public function rollBackTransaction() {
         // check that a transaction is really active
@@ -163,16 +208,15 @@ class DBHelper {
      * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
      *                           INSERT- Database ID for inserted row, throws exception otherwise
      *                           UPDATE | DELETE- true on success, throws exception otherwise
-     * @throws PDOException if cannot execute the query
+     * @throws Exception if could not execute the query successfuly
      */
-    public function exec ($statement, $type = self::SELECT) {
+    public function exec(\PDOStatement $statement, $type = self::SELECT) {
         // Execute
         try {
             $statement->execute();
         } catch (\PDOException $pe) {
             $statement->closeCursor();
-            $this->dbConInit(); // try reconnecting once
-            $statement->execute();
+            throw new \Exception("Error while executing query: ".$pe->getMessage());
         }
 
         // Process Result based on the query type
@@ -193,45 +237,19 @@ class DBHelper {
     }
 
     /**
-     * dbConInit Initializes the PDO database object for the provided database and user
+     * execQuery Wrapper method which prepares the query, binds values and executes it
      * 
-     * @access private
-     * @return boolean true on success, false otherwise
+     * @param mixed $query Query string
+     * @param array $valArr array with statment placeholders mapped to values to bind
+     * @param mixed $queryType Type of database query - refer class constants
+     *
+     * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
+     *                           INSERT- Database ID for inserted row, throws exception otherwise
+     *                           UPDATE | DELETE- true on success, throws exception otherwise
+     * @throws Exception if could not prepare statement, or bind values or execute query successfuly
      */
-    private function dbConInit () {
-        // Check the configuration
-        if (empty($this->_config) || !is_array($this->_config))
-            throw new \InvalidArgumentException("Configuration should be an array");
-        else if (empty($this->_config['type']))
-            throw new \InvalidArgumentException("DB type not specified in configuration");
-        else if (empty($this->_config['host']))
-            throw new \InvalidArgumentException("DB host not specified in configuration");
-        else if (empty($this->_config['name']))
-            throw new \InvalidArgumentException("DB name not specified in configuration");
-        else if (empty($this->_config['username']))
-            throw new \InvalidArgumentException("DB username not specified in configuration");
-        else if (empty($this->_config['password']))
-            throw new \InvalidArgumentException("DB password not specified in configuration");
-
-        $dsn = $this->_config['type'].":host=".$this->_config['host'].";dbname=".$this->_config['name'];
-
-        $opt = array(
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, // throw exceptions when error occur
-            \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'", // set UTF8 names
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC, // always fetch only associative arrays
-            \PDO::ATTR_PERSISTENT => true, // use persistent connections
-            \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_TO_STRING // convert NULLs to empty strings
-        );
-
-        try {
-            $this->_con = new \PDO($dsn, $this->_config['username'], $this->_config['password'], $opt);
-        } catch(\PDOException $pe) {
-            throw new \RuntimeException("Cannot connect to DB '".$this->_config['name']."' with user '".$this->_config['username']."'".PHP_EOL.
-                    "Message: ".$pe->getMessage());
-        }
-
-        return true;
+    public function execQuery($query, $valArr = array(), $queryType = self::SELECT) {
+        return $this->exec($this->bindValues($this->prepare($query), $valArr), $queryType);
     }
 
-}//end class
-
+}

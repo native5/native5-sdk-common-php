@@ -43,5 +43,5 @@ class ComplexityAccessor
         return $password->getComplexity();
     }
 }
-?>
+
 
