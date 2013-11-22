@@ -19,12 +19,14 @@
             "email"   : "support@native5.com"
     },
     "require" : {
-            "monolog/monolog": "1.2.*",
-            "phpunit/phpunit": "3.7.*"
+        "monolog/monolog": "1.2.*",
+        "guzzle/guzzle": "*",
+        "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
             "psr-0": {
-                "Native5": "src"
+                "Native5": "src/",
+                "Native5\\Tests": "tests/"
             }
     }
 }
