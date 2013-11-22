@@ -24,8 +24,7 @@
 namespace Native5\Services\Common;
 
 class ApiConfig {
-    const BASE_URL = 'http://api.sandbox.native5.com/v1/';
-
+    
     protected static $_instance;
     protected $_apiUrl;
 

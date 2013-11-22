@@ -1,36 +1,32 @@
 {   
     "name"            : "native5/native5-sdk-common-php",
-    "description"     : "Native5 Commons Module",
+    "type"          : "library",
+    "description"     : "Native5 PHP Framework commons library",
     "keywords"        : ["core", "util", "services"],
-    "homepage"        : "http://www.native5.com",
+    "homepage"        : "http://docs.native5.com",
     "license"         : "proprietary",
     "authors"         : [
-        {
-            "name"    : "Barada Sahu",
-            "email"   : "barry@native5.com"
-        },
-        {
-            "name"    : "Shamik Datta",
-            "email"   : "shamik@native5.com"
-        }
+    {
+        "name"    : "Barada Sahu",
+        "email"   : "barry@native5.com"
+    },
+    {
+        "name"    : "Shamik Datta",
+        "email"   : "shamik@native5.com"
+    }
     ],
     "support"        : {
             "email"   : "support@native5.com"
     },
-    "repositories": [ 
-        { 
-            "type": "pear", 
-            "url": "http://pear.php.net" 
-        }
-    ],
     "require" : {
-            "monolog/monolog": "1.2.*",
-            "phpunit/phpunit": "3.7.*",
-            "sami/sami": "1.0.*@dev"
+        "monolog/monolog": "1.2.*",
+        "guzzle/guzzle": "*",
+        "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
             "psr-0": {
-                "Native5": "src"
+                "Native5": "src/",
+                "Native5\\Tests": "tests/"
             }
     }
 }
