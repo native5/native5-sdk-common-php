@@ -21,7 +21,8 @@
     "require" : {
         "monolog/monolog": "1.2.*",
         "guzzle/guzzle": "*",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "symfony/yaml": "*"
     },
     "autoload": {
             "psr-0": {
