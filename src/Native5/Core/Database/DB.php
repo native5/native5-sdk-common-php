@@ -48,9 +48,9 @@ class DB
      * @access public
      * @return void
      */
-    public static function factory(DBConfig $configuration)
+    public static function factory(DBConfig $configuration, $renew = false)
     {
-        return self::instance($configuration);
+        return self::instance($configuration, $renew);
     }//end factory()
 
     /**
@@ -62,7 +62,7 @@ class DB
      * @access private
      * @return void
      */
-    private static function instance(DBConfig $configuration, $renew = false)
+    private static function instance(DBConfig $configuration, $renew)
     {
         $port = $configuration->getPort();
         $port = !empty($port) ? $port : 3306;
