@@ -29,7 +29,7 @@ use Monolog\Handler\SyslogHandler as SystemLogHandler;
 use Monolog\Processor\WebProcessor;
 
 /**
- * Reads & writes outputs to files using Monolog 
+ * Reads & writes outputs to syslog using Monolog 
  * 
  * @category  Log 
  * @package   Native5\Core\Log\Impl 
@@ -41,7 +41,7 @@ use Monolog\Processor\WebProcessor;
  * Created : 27-11-2012
  * Last Modified : Fri Dec 21 09:11:53 2012
  */
-class FileLogHandler implements ILogHandler
+class SysLogHandler implements ILogHandler
 {
 
     private $_logger;
