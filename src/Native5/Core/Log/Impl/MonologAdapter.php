@@ -50,7 +50,7 @@ class MonologAdapter extends AbstractLogAdapter
         case 'file':
             return new FileLogHandler($destination, $level);
         default:
-            return new SysLogHandler($destination, $level);
+            return new SysLogHandler($level);
         }
     }
 }
