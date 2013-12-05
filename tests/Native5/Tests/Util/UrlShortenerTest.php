@@ -45,8 +45,9 @@ class UrlShortenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testUrlShortener()
     {
-        $appsUrl = "http://apps.dev.native5.com/zEJ9gNYsL1383888248/";
+        $appsUrl = "apps.dev.native5.com/zEJ9gNYsL1383888248/";
         $shortUrl = UrlShortener::shorten($appsUrl);
+        echo $shortUrl;
         $this->assertFalse(empty($shortUrl));
     }
     

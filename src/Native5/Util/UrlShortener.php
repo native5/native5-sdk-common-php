@@ -58,6 +58,7 @@ class UrlShortener
         $request->getQuery()->add('longUrl', $url);
         $resp = $request->send();
         $jsonRep = $resp->json();
+        print_r($jsonRep);
         return $jsonRep['data']['url'];
     }
     

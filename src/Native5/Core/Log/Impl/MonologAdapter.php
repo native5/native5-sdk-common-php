@@ -42,7 +42,7 @@ class MonologAdapter extends AbstractLogAdapter
 {
     public function getHandler($destination, $level='LOG_INFO')
     {
-        $type = 'file';
+        $type = 'none';
         if(file_exists($destination)) 
             $type = "file";
 
@@ -50,7 +50,7 @@ class MonologAdapter extends AbstractLogAdapter
         case 'file':
             return new FileLogHandler($destination, $level);
         default:
-            return new FileLogHandler($destination, $level);
+            return new SysLogHandler($destination, $level);
         }
     }
 }
