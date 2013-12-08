@@ -49,7 +49,5 @@ class UrlShortenerTest extends \PHPUnit_Framework_TestCase
         $shortUrl = UrlShortener::shorten($appsUrl);
         $this->assertFalse(empty($shortUrl));
     }
-    
-    
 }
 

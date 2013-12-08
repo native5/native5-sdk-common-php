@@ -68,6 +68,7 @@ class DBHelper {
     public function __construct(\PDO $db) {
         $this->_con = $db;
         $this->_statementCache = new Cache();
+        $this->_statementCache->clear();
     }
 
     /**

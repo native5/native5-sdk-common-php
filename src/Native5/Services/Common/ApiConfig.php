@@ -24,7 +24,7 @@
 namespace Native5\Services\Common;
 
 class ApiConfig {
-
+    
     protected static $_instance;
     protected $_apiUrl;
 
