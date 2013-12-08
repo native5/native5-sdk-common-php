@@ -101,18 +101,26 @@ abstract class YamlConfigFactory
 
     // ****** Private Functions Follow ****** //
 
-    private function _parse($config, $exception = true) {
+    private function _parse($configFile, $exception = true) {
         $configArr = array();
 
-        if ((empty($config) || !file_exists($config))) {
+        if ((empty($configFile) || !file_exists($configFile))) {
             if ($exception)
-                throw new \Exception("Empty config file or file does not exist: ".$config);
+                throw new \Exception("Empty config file or file does not exist: ".$configFile);
             else
                 return array();
         }
 
-        if (!($configArr = @yaml_parse_file($config)) && $exception)
-            throw new \Exception("Not a valid yaml file: ".$config);
+        $yaml = new \Symfony\Component\Yaml\Parser();
+
+        try {
+            $configArr = $yaml->parse(file_get_contents($configFile));
+        } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
+            if ($exception)
+                $GLOBALS->info("Unable to parse the file [ %s ]: %s", $configFile, $e->getMessage());
+            else
+                throw new \Exception("Not a valid yaml file: ".$configFile);
+        }
 
         return $configArr;
     }
