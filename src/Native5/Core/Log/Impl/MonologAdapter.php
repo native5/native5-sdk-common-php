@@ -40,12 +40,8 @@ use Native5\Core\Log\Impl\AbstractLogAdapter;
  */
 class MonologAdapter extends AbstractLogAdapter
 {
-    public function getHandler($destination, $level='LOG_INFO')
+    public function getHandler($destination, $level='LOG_INFO', $type='file')
     {
-        $type = 'none';
-        if(file_exists($destination)) 
-            $type = "file";
-
         switch ($type) {
         case 'file':
             return new FileLogHandler($destination, $level);
