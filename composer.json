@@ -18,10 +18,12 @@
     "support"        : {
             "email"   : "support@native5.com"
     },
+    "require-dev" : {
+        "phpunit/phpunit": "3.7.*"
+    },
     "require" : {
         "monolog/monolog": "1.2.*",
-        "guzzle/guzzle": "*",
-        "phpunit/phpunit": "3.7.*"
+        "guzzle/guzzle": "*"
     },
     "autoload": {
             "psr-0": {
