@@ -220,7 +220,7 @@ abstract class AbstractLogAdapter implements Logger
      */
     public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO', $type='file')
     {
-        $this->_logPatterns[$pattern] = $this->getHandler($destination, $level);
+        $this->_logPatterns[$pattern] = $this->buildHandler($destination, $level, $type);
 
     }//end addHandler()
 
