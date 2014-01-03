@@ -41,7 +41,7 @@ use Monolog\Processor\WebProcessor;
  * Created : 27-11-2012
  * Last Modified : Fri Dec 21 09:11:53 2012
  */
-class FileLogHandler implements ILogHandler
+class AnalyticsLogHandler implements ILogHandler
 {
 
     private $_logger;
@@ -66,20 +66,14 @@ class FileLogHandler implements ILogHandler
      * @access public
      * @return void
      */
-    public function __construct($file='logs/application.log', $level='LOG_INFO')
+    public function __construct($file='logs/analytics.log')
     {
-        $this->logger = new Logger('Native5');
-        $this->logger->pushHandler(new StreamHandler($file, self::$_mapping[$level]));
-        $this->logger->pushProcessor(function ($record) {
-            $token = 'Unknown';
-            try {
-                $token = substr(session_id(), 0, 8);
-            } catch(Exception $e) {
-                $token = substr(uniqid(), -8);
-            }
-            $record['context'] = $token;
-            return $record;
-        });
+        $this->logger = new Logger('route');
+        $output = "%datetime% [%level_name%] %context% %message% \n";
+        $formatter = new LineFormatter($output);
+        $stream = new StreamHandler($file, Logger::INFO);
+        $stream->setFormatter($formatter);
+        $this->logger->pushHandler($stream);
     }//end __construct()
 
 
