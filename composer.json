@@ -23,7 +23,8 @@
     },
     "require" : {
         "monolog/monolog": "1.2.*",
-        "guzzle/guzzle": "*"
+        "guzzle/guzzle": "*",
+        "symfony/yaml" : *
     },
     "autoload": {
             "psr-0": {

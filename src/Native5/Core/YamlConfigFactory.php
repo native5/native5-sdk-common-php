@@ -22,6 +22,7 @@
  */
 
 namespace Native5\Core;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * DB 
@@ -111,7 +112,7 @@ abstract class YamlConfigFactory
                 return array();
         }
 
-        if (!($configArr = @yaml_parse_file($config)) && $exception)
+        if (!($configArr = Yaml::parse(file_get_contents($config))) && $exception)
             throw new \Exception("Not a valid yaml file: ".$config);
 
         return $configArr;
