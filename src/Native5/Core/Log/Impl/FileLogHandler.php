@@ -43,6 +43,7 @@ use Monolog\Processor\WebProcessor;
  */
 class FileLogHandler implements ILogHandler
 {
+    const FILE_LOG_FORMAT = "[%datetime%] %channel%.%level_name%: %context% %message% %extra%\n";
 
     private $_logger;
     private $_name;
@@ -68,8 +69,12 @@ class FileLogHandler implements ILogHandler
      */
     public function __construct($file='logs/application.log', $level='LOG_INFO')
     {
+        $formatter = new LineFormatter(self::FILE_LOG_FORMAT);
+        $stream = new StreamHandler($file, self::$_mapping[$level]);
+        $stream->setFormatter($formatter);
+
         $this->logger = new Logger('Native5');
-        $this->logger->pushHandler(new StreamHandler($file, self::$_mapping[$level]));
+        $this->logger->pushHandler($stream);
         $this->logger->pushProcessor(function ($record) {
             $token = 'Unknown';
             try {
@@ -77,7 +82,7 @@ class FileLogHandler implements ILogHandler
             } catch(Exception $e) {
                 $token = substr(uniqid(), -8);
             }
-            $record['context'] = $token;
+            $record['extra'][] = $token;
             return $record;
         });
     }//end __construct()
