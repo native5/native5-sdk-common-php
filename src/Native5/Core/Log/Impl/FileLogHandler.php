@@ -27,6 +27,7 @@ use Native5\Core\Log\Impl\ILogHandler;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Processor\WebProcessor;
+use Monolog\Formatter\LineFormatter;
 
 /**
  * Reads & writes outputs to files using Monolog 
