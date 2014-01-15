@@ -39,64 +39,106 @@ namespace Native5\Core\Database;
 class DB
 {
 
-    private static $_dbs;
+    private $_config;
+    private $_conn;
 
     /**
-     * Factory method for instantiating a db object
-     * 
-     * @static
+     * __construct Construct a DB object which wraps a PDO connection
+     *
+     * @param \Native5\Core\Database\DBConfig $config
      * @access public
      * @return void
      */
-    public static function factory(DBConfig $configuration, $renew = false)
-    {
-        return self::instance($configuration, $renew);
-    }//end factory()
+    public function __construct(\Native5\Core\Database\DBConfig $config) {
+        $this->_config = $config;
+        $this->_connect();
+    }
 
     /**
-     * instance 
-     * 
-     * @param mixed $configuration Database configuration
+     * __destruct Releases DB connection
      *
-     * @static
+     * @access public
+     * @return void
+     */
+    public function __destruct() {
+        unset($this->_conn);
+        $this->_conn = null;
+    }
+
+    /**
+     * getConnection Get the PDO Connection
+     *
+     * @param boolean $checkConnection If set to true the connection is checked for validity
+     * @access public
+     * @return mixed PDO Object representing database connection
+     */
+    public function getConnection($checkConnection = true) {
+        if ($checkConnection)
+            $this->_checkConnection();
+        return $this->_conn;
+    }
+
+    /**
+     * renew Renew the PDO Connection and return the renewed connection
+     *
+     * @access public
+     * @return mixed PDO Object representing database connection
+     */
+    public function renew() {
+        $this->_connect();
+        return $this->_conn;
+    }
+
+    // ****** Private Functions Follow ****** //
+
+    /**
+     * _connect Make the PDO connection
+     *
      * @access private
      * @return void
      */
-    private static function instance(DBConfig $configuration, $renew)
+    private function _connect()
     {
-        $port = $configuration->getPort();
-        $port = !empty($port) ? $port : 3306;
-        $dsn = $configuration->getType().':host='.$configuration->getHost().';port='.$port.';dbname='.$configuration->getName();
-        $dbKey = md5($dsn.'.'.$configuration->getUser());
-
-        if (!$renew && isset(self::$_dbs[$dbKey]) && !empty(self::$_dbs[$dbKey]))
-            return self::$_dbs[$dbKey];
-        else if ($renew && isset(self::$_dbs[$dbKey]))
-            unset(self::$_dbs[$dbKey]);
-
-        if (empty($configuration))
+        if (empty($this->_config))
             throw new \Exception('Empty connection settings provided'); 
 
         // Create a PDO Instance for this user + database combination
         try {
-            self::$_dbs[$dbKey] = new \PDO($dsn, $configuration->getUser(), $configuration->getPassword());
+            $this->_conn = new \PDO($dsn, $this->_config->getUser(), $this->_config->getPassword());
         } catch(\PDOException $pe) {
-            throw new \RuntimeException("Cannot connect to DB '".$configuration->getName()."' with user '".$configuration->getUser()."'".PHP_EOL.
+            throw new \RuntimeException("Cannot connect to DB '".$this->_config->getName()."' with user '".$this->_config->getUser()."'".PHP_EOL.
                     "Message: ".$pe->getMessage());
         }
 
-        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_PERSISTENT, true);
-        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        self::$_dbs[$dbKey]->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES 'UTF8'");
-        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_ORACLE_NULLS, \PDO::NULL_TO_STRING);
-        self::$_dbs[$dbKey]->setAttribute(\PDO::ATTR_EMULATE_PREPARES, 1);
-
-        return self::$_dbs[$dbKey];
+        $this->_conn->setAttribute(\PDO::ATTR_PERSISTENT, false);
+        $this->_conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->_conn->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES 'UTF8'");
+        $this->_conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $this->_conn->setAttribute(\PDO::ATTR_ORACLE_NULLS, \PDO::NULL_TO_STRING);
+        $this->_conn->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
     }
 
-    private function __construct() {}
+    /**
+     * _checkConnection  Checks if the PDO connection is active
+     *
+     * @access private
+     * @return void
+     */
+    private function _checkConnection() {
+        try {
+            $st = $this->_conn->prepare("SELECT 1");
+            $st->execute();
+            $st->closeCursor();
+        } catch(\PDOException $pe) {
+            $st->closeCursor();
+            if ((strcasecmp($pe->getCode(), 'HY000') !== 0) && !stristr($pe->getMessage(), 'server has gone away'))
+                throw $pe;
 
+            if (function_exists('xdebug_start_trace'))
+                xdebug_start_trace();
+
+            $this->_connect();
+        }
+    }
 }
 
