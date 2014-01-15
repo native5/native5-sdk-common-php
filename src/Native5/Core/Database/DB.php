@@ -101,13 +101,16 @@ class DB
     {
         if (empty($this->_config))
             throw new \Exception('Empty connection settings provided'); 
-
+        
+        $port = $this->_config->getPort();
+        $port = !empty($port) ? $port : 3306;
+        $dsn = $this->_config->getType().':host='.$this->_config->getHost().';port='.$port.';dbname='.$this->_config->getName();
         // Create a PDO Instance for this user + database combination
         try {
             $this->_conn = new \PDO($dsn, $this->_config->getUser(), $this->_config->getPassword());
         } catch(\PDOException $pe) {
-            throw new \RuntimeException("Cannot connect to DB '".$this->_config->getName()."' with user '".$this->_config->getUser()."'".PHP_EOL.
-                    "Message: ".$pe->getMessage());
+            throw new \RuntimeException("Cannot connect to DB '".$this->_config->getName().
+                "' with user '".$this->_config->getUser()."'".PHP_EOL."Message: ".$pe->getMessage());
         }
 
         $this->_conn->setAttribute(\PDO::ATTR_PERSISTENT, false);

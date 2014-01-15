@@ -36,7 +36,7 @@ class DBFactory
      * @access private
      * @return void
      */
-    public static function instance(\Native5\Core\Database\DBConfig $configuration)
+    public static function makeDB(\Native5\Core\Database\DBConfig $configuration)
     {
         if (empty($configuration))
             throw new \Exception('Empty connection settings provided'); 
