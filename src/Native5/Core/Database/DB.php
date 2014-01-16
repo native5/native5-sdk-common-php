@@ -23,24 +23,40 @@
 
 namespace Native5\Core\Database;
 
-/**
- * DB 
- *
- * @category  Connectors 
- * @package   Native5\Core\Connectors\Database
- * @author    Barada Sahu <barry@native5.com>
- * @copyright 2012 Native5. All Rights Reserved
- * @license   See attached NOTICE.md for details
- * @version   Release: 1.0
- * @link      http://www.docs.native5.com
- * Created : 27-11-2012
- * Last Modified : Fri Dec 21 09:11:53 2012
- */
-class DB
-{
+use Native5\Core\Caching\Cache;
 
-    private $_config;
-    private $_conn;
+/**
+ * DB
+ */
+class DB {
+    /**
+     * Constant indicating execution of a SELECT query 
+     *
+     * @access public
+     */
+    const SELECT = 0;
+    /**
+     * Constant indicating execution of an INSERT query 
+     *
+     * @access public
+     */
+    const INSERT = 1;
+    /**
+     * Constant indicating execution of an UPDATE query 
+     *
+     * @access public
+     */
+    const UPDATE = 2;
+    /**
+     * Constant indicating execution of a DELETE query 
+     *
+     * @access public
+     */
+    const DELETE = 3;
+
+    protected $_config;
+    protected $_conn;
+    protected $_statementCache;
 
     /**
      * __construct Construct a DB object which wraps a PDO connection
@@ -50,8 +66,13 @@ class DB
      * @return void
      */
     public function __construct(\Native5\Core\Database\DBConfig $config) {
+        // Store the config
         $this->_config = $config;
+        // Connect to DB
         $this->_connect();
+        // Setup statement cache
+        $this->_statementCache = new Cache();
+        $this->_statementCache->clear();
     }
 
     /**
@@ -61,8 +82,26 @@ class DB
      * @return void
      */
     public function __destruct() {
-        unset($this->_conn);
-        $this->_conn = null;
+        $this->_resetConnection();
+    }
+
+    /**
+     * execQuery Wrapper method which prepares the query, binds values and executes it
+     * 
+     * @param string $query Query string
+     * @param array $valArr array with statment placeholders mapped to values to bind
+     * @param mixed $queryType Type of database query, one of SELECT, INSERT, UPDATE, DELETE constants
+     *
+     * @access public
+     *
+     * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
+     *                           INSERT- Database ID for inserted row, throws exception otherwise
+     *                           UPDATE | DELETE- true on success, throws exception otherwise
+     *
+     * @throws Exception if could not prepare statement, or bind values or execute query successfuly
+     */
+    public function execQuery($query, $valArr = array(), $queryType = self::SELECT) {
+        return $this->exec($this->bindValues($this->prepare($query), $valArr), $queryType);
     }
 
     /**
@@ -79,14 +118,155 @@ class DB
     }
 
     /**
-     * renew Renew the PDO Connection and return the renewed connection
-     *
+     * beginTransaction Begin database transaction
+     * 
      * @access public
-     * @return mixed PDO Object representing database connection
+     * @return void
+     * @throws Exception if already inside a transaction of if could not begin transaction successfuly
      */
-    public function renew() {
-        $this->_connect();
-        return $this->_conn;
+    public function beginTransaction() {
+        // check if a transaction is already active
+        if ($this->getConnection()->inTransaction())
+            throw new \Exception("Already inside a DB transaction. You need to commit it before beginning a new one.");
+
+        try {
+            // No need to check for the connection again
+            $this->getConnection(false)->beginTransaction();
+        } catch (Exception $_e) {
+            throw new \Exception("Error while beginning DB transaction: ".$pe->getMessage());
+        }
+    }
+
+    /**
+     * commitTransaction Commit begun database transaction
+     * 
+     * @access public
+     * @return void
+     * @throws Exception if not inside a transaction of if could not commit transaction successfuly
+     */
+    public function commitTransaction() {
+        // check that a transaction is really active
+        if (!$this->getConnection()->inTransaction())
+            throw new \Exception("Not inside a DB transaction. Cannot commit.");
+
+        try {
+            $this->getConnection(false)->commit();
+        } catch (Exception $_e) {
+            throw new \Exception("Error while committing DB transaction: ".$pe->getMessage());
+        }
+    }
+
+    /**
+     * rollBackTransaction Rollback begun database transaction
+     * 
+     * @access public
+     * @return void
+     * @throws Exception if not inside a transaction of if could not rollback transaction successfuly
+     */
+    public function rollBackTransaction() {
+        // check that a transaction is really active
+        if (!$this->getConnection()->inTransaction())
+            throw new \Exception("Not inside a DB transaction. Cannot commit.");
+
+        try {
+            $this->getConnection(false)->rollBack();
+        } catch (Exception $_e) {
+            throw new \Exception("Error while rolling back DB transaction: ".$pe->getMessage());
+        }
+    }
+
+    // ****** Protected Functions Follow ****** //
+
+    /**
+     * prepare Prepare query from sql query
+     * 
+     * @param string $sql SQL query string
+     *
+     * @access protected
+     * @return object prepared statement
+     * @throws Exception if statement could not be prepared successfuly
+     */
+    protected function prepare($sql) {
+        $this->_checkConnection();
+
+        $sqlKey = md5($sql);
+        if ($this->_statementCache->exists($sqlKey))
+            return $this->_statementCache->get($sqlKey);
+
+        try {
+            // No need to check the connection again
+            $statement = $this->getConnection(false)->prepare($sql);
+        } catch (\PDOException $pe) {
+            throw new \Exception("Error in preparing statement:: query: ".$sql.PHP_EOL."Message: ".$pe->getMessage());
+        }
+
+        $this->_statementCache->set($sqlKey, $statement);
+        return $statement;
+    }
+
+    /**
+     * bindValues Bind values to a prepared statement
+     * 
+     * @param object $statement PDOStatement object
+     * @param array $valArr array with statment placeholders mapped to values to bind
+     *
+     * @access protected
+     * @return object prepared statement with bound values
+     * @throws Exception if could not bind parameter to statement successfuly
+     */
+    protected function bindValues (\PDOStatement $statement, $valArr = array()) {
+        if (empty($valArr))
+            return $statement;
+
+        // Bind the values
+        foreach ($valArr as $key=>$val) {
+            try {
+                $statement->bindValue($key, $val);
+            } catch (\PDOException $pe) {
+                throw new \Exception("Error in binding parameter:: query: ".$statement->queryString.PHP_EOL."Message: ".$pe->getMessage());
+            }
+        }
+
+        return $statement;
+    }
+
+    /**
+     * exec Execute prepared statement on this database, reconnects to DB if connection does not exist
+     * 
+     * @param object $query PDO prepared statement to execute
+     * @param mixed $type Type of database query - refer class constants
+     * @param boolean $reconnect true if should reconnect to DB on a connection failure, false otherwise
+     * @access protected
+     * @return array|int|boolean SELECT - array of all selected rows as associative arrays on success, throws exception otherwise
+     *                           INSERT- Database ID for inserted row, throws exception otherwise
+     *                           UPDATE | DELETE- true on success, throws exception otherwise
+     * @throws Exception if could not execute the query successfuly
+     */
+    protected function exec(\PDOStatement $statement, $type = self::SELECT) {
+        // Execute
+        try {
+            $statement->execute();
+        } catch (\PDOException $pe) {
+            $statement->closeCursor();
+            throw new \Exception("Error while executing query:: sql: ".$statement->queryString.PHP_EOL."Message: ".$pe->getMessage());
+        }
+
+        // Process Result based on the query type
+        if ($type == self::SELECT) {
+            $result = array();
+            foreach($statement as $row) {
+                $result[] = $row;
+            }
+        } else if ($type == self::INSERT) {
+            // No need to check connection here
+            $result = (int)$this->getConnection(false)->lastInsertId();
+        } else {
+            $result = true;
+        }
+
+        $statement->closeCursor();
+
+        return $result;
     }
 
     // ****** Private Functions Follow ****** //
@@ -140,8 +320,24 @@ class DB
             if (function_exists('xdebug_start_trace'))
                 xdebug_start_trace();
 
+            $this->_resetConnection();
             $this->_connect();
         }
+    }
+
+    /**
+     * _resetConnection Release the database connection and clean statement cache
+     * 
+     * @access private
+     * @return void
+     */
+    private function _resetConnection() {
+        // Release the DB connection
+        unset($this->_conn);
+        $this->_conn = null;
+
+        // Clear the prepared statement cache
+        $this->_statementCache->clear();
     }
 }
 

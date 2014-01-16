@@ -27,13 +27,13 @@ namespace Native5\Core\Database;
  * DBDAO Base DAO class for creating Mysql Database based DAOs
  */
 class DBDAO {
-    protected $dbHelper;
+    protected $db;
     protected $queries;
 
     /**
      * __construct Construct an instance of DBDAO
      * 
-     * @param \Native5\Core\Database\DBHelper $dbHelper Instance of DBHelper class (Optional)
+     * @param \Native5\Core\Database\DB $db Instance of DB class (Optional)
      * @param mixed[] $dbConfigArray DB configuration array in the following format
      *  mixed[] $dbConfigArray {
      *     @type string "type" Database type as used in PDO DSN
@@ -49,9 +49,9 @@ class DBDAO {
      * @access protected
      * @return void
      */
-    protected function __construct(\Native5\Core\Database\DBHelper $dbHelper = null, $dbConfigArray = null) {
-        if (!empty($dbHelper) && ($dbHelper instanceof \Native5\Core\Database\DBHelper))
-            $this->dbHelper = $dbHelper;
+    protected function __construct(\Native5\Core\Database\DB $db = null, $dbConfigArray = null) {
+        if (!empty($db) && ($db instanceof \Native5\Core\Database\DB))
+            $this->db = $db;
         else {
             if (!empty($dbConfigArray) && is_array($dbConfigArray))
                 $dbConfig = $dbConfigArray; 
@@ -63,9 +63,8 @@ class DBDAO {
             $dbConfigFactory = new \Native5\Core\Database\DBConfigFactory();
             $dbConfigFactory->setRawConfig($dbConfig);
 
-            // Create the database connection and DBHelper object
-            $dbConn = \Native5\Core\Database\DBFactory::makeDB($dbConfigFactory->getConfig());
-            $this->dbHelper = new \Native5\Core\Database\DBHelper($dbConn);
+            // Create the database connection and DB object
+            $this->db = \Native5\Core\Database\DBFactory::makeDB($dbConfigFactory->getConfig());
         }
     }
 
@@ -91,12 +90,12 @@ class DBDAO {
      * 
      * @param mixed $queryIndex Index of the query to be picked from the sql queries file
      * @param mixed $valArr Key Value pairs to bind before query is executed
-     * @param mixed $type One of DBHelper::SELECT, DBHelper::INSERT, DBHelper::UPDATE, DBHelper::DELETE
+     * @param mixed $type One of DB::SELECT, DB::INSERT, DB::UPDATE, DB::DELETE
      * @access protected
      * @return void
      */
-    protected function execQuery ($queryIndex, $valArr, $type = \Native5\Core\Database\DBHelper::SELECT) {
-        return $this->dbHelper->execQuery($this->queries[$queryIndex], $valArr, $type);
+    protected function execQuery ($queryIndex, $valArr, $type = \Native5\Core\Database\DB::SELECT) {
+        return $this->db->execQuery($this->queries[$queryIndex], $valArr, $type);
     }
 
     /**
@@ -104,12 +103,12 @@ class DBDAO {
      * 
      * @param mixed $query Query string
      * @param mixed $valArr Key Value pairs to bind before query is executed
-     * @param mixed $type One of DBHelper::SELECT, DBHelper::INSERT, DBHelper::UPDATE, DBHelper::DELETE
+     * @param mixed $type One of DB::SELECT, DB::INSERT, DB::UPDATE, DB::DELETE
      * @access protected
      * @return void
      */
-    protected function execQueryString ($query, $valArr, $type = \Native5\Core\Database\DBHelper::SELECT) {
-        return $this->dbHelper->execQuery($query, $valArr, $type);
+    protected function execQueryString ($query, $valArr, $type = \Native5\Core\Database\DB::SELECT) {
+        return $this->db->execQuery($query, $valArr, $type);
     }
 }
 
