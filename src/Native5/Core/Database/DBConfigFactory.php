@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  PHP version 5.3+
  *
- * @category  Connectors
+ * @category  Database
  * @package   Native5\Core\Connectors\Database
  * @author    Shamik Datta <shamik@native5.com>
  * @copyright 2012 Native5. All Rights Reserved
@@ -23,9 +23,7 @@
 
 namespace Native5\Core\Database;
 
-use Native5\Core\YamlConfigFactory;
-
-class DBConfigFactory extends YamlConfigFactory {
+class DBConfigFactory extends \Native5\Core\YamlConfigFactory {
 
     /**
      * makeConfig Wrap the associative configuration array inside a DBConfig class

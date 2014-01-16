@@ -12,9 +12,9 @@
  *  limitations under the License.
  *  PHP version 5.3+
  *
- * @category  Sessions
+ * @category  Database
  * @package   Native5\Core\Connectors\Database
- * @author    Barada Sahu <barry@native5.com>
+ * @author    Shamik Datta <shamik@native5.com>
  * @copyright 2012 Native5. All Rights Reserved
  * @license   See attached LICENSE for details
  * @version   GIT: $gitid$

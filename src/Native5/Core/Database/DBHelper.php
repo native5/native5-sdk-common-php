@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  PHP version 5.3+
  *
- * @category  Connectors
+ * @category  Database
  * @package   Native5\Core\Connectors\Database
  * @author    Shamik Datta <shamik@native5.com>
  * @copyright 2012 Native5. All Rights Reserved
