@@ -23,6 +23,10 @@
 
 namespace Native5\Services\Common;
 
+/**
+ * This class is currently unused
+ * TODO: Fix this class and use instead of relying on application configuration
+ */
 class ApiConfig {
     
     protected static $_instance;
