@@ -22,6 +22,7 @@
  */
 
 namespace Native5\Core;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * DB 
@@ -47,8 +48,9 @@ abstract class YamlConfigFactory
      * @access public
      * @return void
      */
-    public function __construct($configFile) {
-        $this->_config = $this->_parse($configFile);
+    public function __construct($configFile = null) {
+        if (!empty($configFile) && file_exists($configFile))
+            $this->_config = $this->_parse($configFile);
     }
 
     /**
@@ -98,6 +100,16 @@ abstract class YamlConfigFactory
         return $this->_config;
     }
 
+    /**
+     * setConfig force to use this configuration instead of the one used during construction
+     *
+     * @param mixed $config
+     * @access protected
+     * @return void
+     */
+    public function setRawConfig($config) {
+        $this->_config = $config;
+    }
 
     // ****** Private Functions Follow ****** //
 
@@ -116,9 +128,8 @@ abstract class YamlConfigFactory
         try {
             $configArr = $yaml->parse(file_get_contents($configFile));
         } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
+            $GLOBALS->info("Unable to parse the file [ %s ]: %s", $configFile, $e->getMessage());
             if ($exception)
-                $GLOBALS->info("Unable to parse the file [ %s ]: %s", $configFile, $e->getMessage());
-            else
                 throw new \Exception("Not a valid yaml file: ".$configFile);
         }
 

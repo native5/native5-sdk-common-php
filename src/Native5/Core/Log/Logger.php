@@ -134,7 +134,7 @@ interface Logger
      * @access public
      * @return void
      */
-    public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO');
+    public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO', $type='file');
 
 
 }//end interface

@@ -42,9 +42,8 @@ use Monolog\Formatter\LineFormatter;
  * Created : 27-11-2012
  * Last Modified : Fri Dec 21 09:11:53 2012
  */
-class FileLogHandler implements ILogHandler
+class AnalyticsLogHandler implements ILogHandler
 {
-    const FILE_LOG_FORMAT = "[%datetime%] %channel%.%level_name%: %context% %message% %extra%\n";
 
     private $_logger;
     private $_name;
@@ -68,24 +67,14 @@ class FileLogHandler implements ILogHandler
      * @access public
      * @return void
      */
-    public function __construct($file='logs/application.log', $level='LOG_INFO')
+    public function __construct($file='logs/analytics.log')
     {
-        $formatter = new LineFormatter(self::FILE_LOG_FORMAT);
-        $stream = new StreamHandler($file, self::$_mapping[$level]);
+        $this->logger = new Logger('route');
+        $output = "%datetime% [%level_name%] %context% %message% \n";
+        $formatter = new LineFormatter($output);
+        $stream = new StreamHandler($file, Logger::INFO);
         $stream->setFormatter($formatter);
-
-        $this->logger = new Logger('Native5');
         $this->logger->pushHandler($stream);
-        $this->logger->pushProcessor(function ($record) {
-            $token = 'Unknown';
-            try {
-                $token = substr(session_id(), 0, 8);
-            } catch(Exception $e) {
-                $token = substr(uniqid(), -8);
-            }
-            $record['extra'][] = $token;
-            return $record;
-        });
     }//end __construct()
 
 

@@ -47,5 +47,5 @@ interface ILogHandler
      * @access public
      * @return void
      */
-    public function writeLog($message, $priority);
+    public function writeLog($message, $priority, $context=array());
 }

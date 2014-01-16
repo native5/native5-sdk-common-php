@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  PHP version 5.3+
  *
- * @category  Connectors
+ * @category  Database
  * @package   Native5\Core\Connectors\Database
  * @author    Shamik Datta <shamik@native5.com>
  * @copyright 2012 Native5. All Rights Reserved
@@ -54,7 +54,7 @@ class DBHelper {
      */
     const DELETE = 3;
 
-    protected $_con;
+    protected $_db;
     protected $_statementCache;
 
     /**
@@ -65,8 +65,8 @@ class DBHelper {
      * @access public
      * @return object instance of DBHelper object
      */
-    public function __construct(\PDO $db) {
-        $this->_con = $db;
+    public function __construct(\Native5\Core\Database\DB $db) {
+        $this->_db = $db;
         $this->_statementCache = new Cache();
         $this->_statementCache->clear();
     }
@@ -78,8 +78,8 @@ class DBHelper {
      * @return void
      */
     public function __destruct() {
-        unset($this->_con);
-        $this->_con = null;
+        unset($this->_db);
+        $this->_db = null;
     }
 
     /**
@@ -89,7 +89,7 @@ class DBHelper {
      * @return object PDO object for the DB Connection
      */
     public function getConnection() {
-        return $this->_con;
+        return $this->_db->getConnection();
     }
 
     /**
@@ -107,7 +107,7 @@ class DBHelper {
             return $this->_statementCache->get($sqlKey);
 
         try {
-            $statement = $this->_con->prepare($sql);
+            $statement = $this->_db->getConnection()->prepare($sql);
         } catch (\PDOException $pe) {
             throw new \Exception("Error in preparing statement:: query: ".$sql.PHP_EOL."Message: ".$pe->getMessage());
         }
@@ -151,11 +151,11 @@ class DBHelper {
      */
     public function beginTransaction() {
         // check if a transaction is already active
-        if ($this->_con->inTransaction())
+        if ($this->_db->getConnection()->inTransaction())
             throw new \Exception("Already inside a DB transaction. You need to commit it before beginning a new one.");
 
         try {
-            $this->_con->beginTransaction();
+            $this->_db->getConnection()->beginTransaction();
         } catch (Exception $_e) {
             throw new \Exception("Error while beginning DB transaction: ".$pe->getMessage());
         }
@@ -170,11 +170,11 @@ class DBHelper {
      */
     public function commitTransaction() {
         // check that a transaction is really active
-        if (!$this->_con->inTransaction())
+        if (!$this->_db->getConnection()->inTransaction())
             throw new \Exception("Not inside a DB transaction. Cannot commit.");
 
         try {
-            $this->_con->commit();
+            $this->_db->getConnection()->commit();
         } catch (Exception $_e) {
             throw new \Exception("Error while committing DB transaction: ".$pe->getMessage());
         }
@@ -189,11 +189,11 @@ class DBHelper {
      */
     public function rollBackTransaction() {
         // check that a transaction is really active
-        if (!$this->_con->inTransaction())
+        if (!$this->_db->getConnection()->inTransaction())
             throw new \Exception("Not inside a DB transaction. Cannot commit.");
 
         try {
-            $this->_con->rollBack();
+            $this->_db->getConnection()->rollBack();
         } catch (Exception $_e) {
             throw new \Exception("Error while rolling back DB transaction: ".$pe->getMessage());
         }
@@ -227,7 +227,7 @@ class DBHelper {
                 $result[] = $row;
             }
         } else if ($type == self::INSERT) {
-            $result = (int)$this->_con->lastInsertId();
+            $result = (int)$this->_db->getConnection()->lastInsertId();
         } else {
             $result = true;
         }
@@ -252,5 +252,5 @@ class DBHelper {
     public function execQuery($query, $valArr = array(), $queryType = self::SELECT) {
         return $this->exec($this->bindValues($this->prepare($query), $valArr), $queryType);
     }
-
 }
+

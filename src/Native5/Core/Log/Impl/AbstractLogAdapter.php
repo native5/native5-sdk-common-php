@@ -67,7 +67,7 @@ abstract class AbstractLogAdapter implements Logger
      * @access protected
      * @return void
      */
-    abstract protected function getHandler($destination, $level);
+    abstract protected function buildHandler($destination, $level, $type);
 
 
     /**
@@ -90,35 +90,27 @@ abstract class AbstractLogAdapter implements Logger
 
         $newArgs   = array();
         $fileParts = explode('/', $args['FILENAME']);
-        $newArgs[] = array_pop($fileParts);
-        $newArgs[] = $args['LINENO'];
+        $newArgs[] = array_pop($fileParts)."#".$args['LINENO'];
         unset($args['LINENO']);
         unset($args['FILENAME']);
         foreach ($args as $arg) {
             $newArgs[] = $arg;
         }//end foreach
 
-        // Escaping any % in the message before passing to vsprintf
-        $message = str_replace('%', '%%', $message);
-
-        $message = '[%s,%d] : '.$message;
-        $msg     = vsprintf($message, $newArgs);
-        if ($this->_isSecure($msg) === true) {
+        if ($this->_isSecure($message) === true) {
             // TODO: Do not write log
             // Get list of handlers which will process message
             // Send message about which handlers are erroneous.
         } else {
             if (empty($this->_logPatterns)) {
-                $this->_logPatterns[Logger::ALL]
-                    = new FileLogHandler();
+                $this->_logPatterns[Logger::ALL] = new FileLogHandler();
             }//end if
 
             foreach ($this->_logPatterns as $pattern => $handler) {
-                if(preg_match($pattern, $msg))
-                    $handler->writeLog($msg, $priority);
+                if(preg_match($pattern, $message))
+                    $handler->writeLog($message, $priority, $newArgs);
             }//end foreach
         }
-
     }//end log()
 
 
@@ -226,9 +218,9 @@ abstract class AbstractLogAdapter implements Logger
      * @access public
      * @return void
      */
-    public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO')
+    public function addHandler($destination, $pattern=Logger::ALL, $level='LOG_INFO', $type='file')
     {
-        $this->_logPatterns[$pattern] = $this->getHandler($destination, $level);
+        $this->_logPatterns[$pattern] = $this->buildHandler($destination, $level, $type);
 
     }//end addHandler()
 
