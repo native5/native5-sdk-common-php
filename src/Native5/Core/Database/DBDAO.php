@@ -31,9 +31,75 @@ class DBDAO {
     protected $queries;
 
     /**
-     * __construct Construct an instance of DBDAO
+     * __construct Private constructor which creates the DB object
+     *
+     * @param \Native5\Core\Database\DBConfig $config Instance of DBConfig class containing the database connection parameters
+     *
+     * @access private
+     * @return mixed Instance of DBDAO (this) class
+     */
+    private function __construct(\Native5\Core\Database\DB $db) {
+        $this->db = $db;
+    }
+
+    /**
+     * makeFromDB Creates the DB connection using an instance of the DB class
+     *
+     * @access protected
+     * @return mixed Instance of DBDAO (this) class
+     */
+    protected static function makeFromDB (\Native5\Core\Database\DB $db) {
+        if (empty($db))
+            throw new \InvalidArgumentException("Emoty DB object received");
+
+        return new self($db);
+    }
+
+    /**
+     * makeFromSettings Creates the DB connection using settings in database section of settings.yml file
+     *
+     * @access protected
+     * @return mixed Instance of DBDAO (this) class
+     */
+    protected static function makeFromSettings () {
+        try {
+            // Get the database configuration from settings.yml file
+            $instance = new self(
+                \Native5\Core\Database\DBFactory::makeDB(
+                    $this->_makeDBConfigFromArray(
+                        $GLOBALS['app']->getConfiguration()->getRawConfiguration('database')
+                    )
+                )
+            );
+        } catch (\InvalidArgumentException $_e) {
+            throw new \InvalidArgumentException("Empty or invalid database section in settings.yml configuration file");
+        }
+
+        return $instance;
+    }
+
+    /**
+     * makeFromConfigurationFiles Creates the DB connection using settings in database section in yaml configuration file(s)
+     *
+     * @param mixed $configFile Base yaml database configuration file
+     * @param mixed $overrideConfigFile Overriding yaml database configuration file
+     *
+     * @access protected
+     * @return mixed Instance of DBDAO (this) class
+     */
+    protected static function makeFromConfigurationFiles ($configFile, $overrideConfigFile = null) {
+        $dbConfigFactory = new \Native5\Core\Database\DBConfigFactory($configFile);
+        if (!empty($overrideConfigFile))
+            $dbConfigFactory->override($overrideConfigFile);
+
+        return new self(
+            \Native5\Core\Database\DBFactory::makeDB($dbConfigFactory->getConfig())
+        );
+    }
+
+    /**
+     * makeFromConfigurationArray Creates the DB connection using parameters in assoc. array
      * 
-     * @param \Native5\Core\Database\DB $db Instance of DB class (Optional)
      * @param mixed[] $dbConfigArray DB configuration array in the following format
      *  mixed[] $dbConfigArray {
      *     @type string "type" Database type as used in PDO DSN
@@ -44,28 +110,22 @@ class DBDAO {
      *     @type string "password" Database password
      * }
      *
-     * @note If both parameters are ommited, the DB connection parameters are read from database section in settings.yml
-     *
      * @access protected
-     * @return void
+     * @return mixed Instance of DBDAO (this) class
      */
-    protected function __construct(\Native5\Core\Database\DB $db = null, $dbConfigArray = null) {
-        if (!empty($db) && ($db instanceof \Native5\Core\Database\DB))
-            $this->db = $db;
-        else {
-            if (!empty($dbConfigArray) && is_array($dbConfigArray))
-                $dbConfig = $dbConfigArray; 
-            else
-                // Fallback: Get the database configuration from settings.yml file
-                $dbConfig = $GLOBALS['app']->getConfiguration()->getRawConfiguration('database');
-
-            // Create the database configuration
-            $dbConfigFactory = new \Native5\Core\Database\DBConfigFactory();
-            $dbConfigFactory->setRawConfig($dbConfig);
-
-            // Create the database connection and DB object
-            $this->db = \Native5\Core\Database\DBFactory::makeDB($dbConfigFactory->getConfig());
+    protected function makeFromConfigurationArray($dbConfigArray) {
+        try {
+            // Use the database configuration from the provided $dbConfigArray
+            $instance = new self(
+                \Native5\Core\Database\DBFactory::makeDB(
+                    $this->_makeDBConfigFromArray($dbConfigArray)
+                )
+            );
+        } catch (\InvalidArgumentException $_e) {
+            throw new \InvalidArgumentException("Empty or invalid database configuration array provided");
         }
+
+        return $instance;
     }
 
     /**
@@ -109,6 +169,19 @@ class DBDAO {
      */
     protected function execQueryString ($query, $valArr, $type = \Native5\Core\Database\DB::SELECT) {
         return $this->db->execQuery($query, $valArr, $type);
+    }
+
+    // ****** Private Function Follow ****** //
+
+    private function _makeDBConfigFromArray($dbConfigArray) {
+        if (empty($dbConfigArray) || !is_array($dbConfigArray))
+            throw new \InvalidArgumentException();
+
+        // Create the database configuration
+        $dbConfigFactory = new \Native5\Core\Database\DBConfigFactory();
+        $dbConfigFactory->setRawConfig($dbConfigArray);
+
+        return $dbConfigFactory->getConfig();
     }
 }
 
