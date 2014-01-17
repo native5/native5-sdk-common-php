@@ -23,7 +23,7 @@
 
 namespace Native5\Core\Ftp;
 
-use Native5\Core\YamlConfigFactory;
+use Native5\Core\Configuration\YamlConfigFactory;
 
 class FtpConfigFactory extends YamlConfigFactory {
     protected $_baseDir;
@@ -48,8 +48,7 @@ class FtpConfigFactory extends YamlConfigFactory {
      *         public_key: '<path to ssh public key file relative to baseDir>'
      */
     public function __construct($configFile, $localConfigFile = null, $baseDir = null) {
-        parent::__construct($configFile);
-        parent::override($localConfigFile);
+        parent::__construct($configFile, $localConfigFile);
 
         // Set the base directory
         if (!empty($baseDir)) {

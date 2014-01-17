@@ -23,7 +23,7 @@
 
 namespace Native5\Core\Database;
 
-class DBConfigFactory extends \Native5\Core\YamlConfigFactory {
+class DBConfigFactory extends \Native5\Core\Configuration\YamlConfigFactory {
 
     /**
      * makeConfig Wrap the associative configuration array inside a DBConfig class
