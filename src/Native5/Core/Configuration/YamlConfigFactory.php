@@ -42,6 +42,7 @@ abstract class YamlConfigFactory extends \Native5\Core\Configuration\ArrayConfig
     public function __construct($configFile = null, $overridingConfigFile = null) {
         if (!empty($configFile))
             parent::__construct($this->_parse($configFile));
+        $this->override($overridingConfigFile);
     }
 
     /**
