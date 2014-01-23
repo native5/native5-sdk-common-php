@@ -44,15 +44,15 @@ class StatusCodes {
     const ALREADY_REPORTED = 208;
 
     // 3xx redirection responses
-    const multiple_choices = 300;
-    const moved_permanently = 301;
-    const moved_temporarily = 302;
-    const see_another_response = 303;
-    const not_modified = 304;
-    const use_proxy = 305;
-    const switch_proxy = 306;
-    const redirect_temporarily = 307;
-    const redirect_permanently = 308;
+    const MULTIPLE_CHOICES = 300;
+    const MOVED_PERMANENTLY = 301;
+    const MOVED_TEMPORARILY = 302;
+    const SEE_ANOTHER_RESPONSE = 303;
+    const NOT_MODIFIED = 304;
+    const USE_PROXY = 305;
+    const SWITCH_PROXY = 306;
+    const REDIRECTED_TEMPORARILY = 307;
+    const REDIRECTED_PERMANENTLY = 308;
 
     // 4xx Errors
     const BAD_REQUEST = 400;
