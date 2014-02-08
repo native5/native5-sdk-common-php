@@ -46,7 +46,7 @@ class DBFactory
         $dsn = $configuration->getType().':host='.$configuration->getHost().';port='.$port.';dbname='.$configuration->getName();
         $dbKey = md5($dsn.'.'.$configuration->getUser());
 
-        if (isset(self::$_dbs[$dbKey]) && !empty(self::$_dbs[$dbKey]))
+        if (isset(self::$_dbs[$dbKey]) && !empty(self::$_dbs[$dbKey]) && self::$_dbs[$dbKey]->checkConnection())
             return self::$_dbs[$dbKey];
 
         // Create a DB Instance for this user + database combination

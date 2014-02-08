@@ -113,7 +113,7 @@ class DB {
      */
     public function getConnection($checkConnection = true) {
         if ($checkConnection)
-            $this->_checkConnection();
+            $this->checkConnection();
         return $this->_conn;
     }
 
@@ -187,7 +187,7 @@ class DB {
      * @throws Exception if statement could not be prepared successfuly
      */
     protected function prepare($sql) {
-        $this->_checkConnection();
+        $this->checkConnection();
 
         $sqlKey = md5($sql);
         if ($this->_statementCache->exists($sqlKey))
@@ -218,16 +218,47 @@ class DB {
         if (empty($valArr))
             return $statement;
 
-        // Bind the values
-        foreach ($valArr as $key=>$val) {
+        /**
+         * valArr can be of 2 types:
+         *     type1: array( array(key1, value1, PDO::PARAM_INT), array(key2, value2 // if no 3rd param consider a string //), .. )
+         *     type2: array( key1 => value1, key2 => value2, key3 => value3, .. ) or
+         */
+        $type1 = false;
+        if (isset($valArr[0]) && is_array($valArr[0]) && isset($valArr[0][0]) && isset($valArr[0][1]))
+            $type1 = true;
+
+        foreach ($valArr as $idx=>$val) {
             try {
-                $statement->bindValue($key, $val);
+                if ($type1)
+                    $statement->bindValue(
+                        $val[0],
+                        $val[1],
+                        ((isset($val[2]) && $this->_checkIsPDOParamConstant($val[2])) ? $val[2] : \PDO::PARAM_STR)
+                    );
+                else
+                    $statement->bindValue(
+                        $idx,
+                        $val,
+                        \PDO::PARAM_STR
+                    );
             } catch (\PDOException $pe) {
                 throw new \Exception("Error in binding parameter:: query: ".$statement->queryString.PHP_EOL."Message: ".$pe->getMessage());
             }
         }
 
         return $statement;
+    }
+
+    private function _checkIsPDOParamConstant($param) {
+        if (($param === \PDO::PARAM_BOOL) ||
+            ($param === \PDO::PARAM_NULL) ||
+            ($param === \PDO::PARAM_INT) ||
+            ($param === \PDO::PARAM_STR) ||
+            ($param === \PDO::PARAM_LOB)
+        )
+            return true;
+
+        return false;
     }
 
     /**
@@ -307,13 +338,10 @@ class DB {
      * @access private
      * @return void
      */
-    private function _checkConnection() {
+    public function checkConnection() {
         try {
-            $st = $this->_conn->prepare("SELECT 1");
-            $st->execute();
-            $st->closeCursor();
+            $st = $this->_conn->query("SELECT 1");
         } catch(\PDOException $pe) {
-            $st->closeCursor();
             if ((strcasecmp($pe->getCode(), 'HY000') !== 0) && !stristr($pe->getMessage(), 'server has gone away'))
                 throw $pe;
 
@@ -323,6 +351,8 @@ class DB {
             $this->_resetConnection();
             $this->_connect();
         }
+
+        return true;
     }
 
     /**
@@ -333,8 +363,8 @@ class DB {
      */
     private function _resetConnection() {
         // Release the DB connection
-        unset($this->_conn);
         $this->_conn = null;
+        unset($this->_conn);
 
         // Clear the prepared statement cache
         $this->_statementCache->clear();
