@@ -74,7 +74,7 @@ abstract class YamlConfigFactory extends \Native5\Core\Configuration\ArrayConfig
         try {
             $configArr = $yaml->parse(file_get_contents($configFile));
         } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
-            $GLOBALS->info("Unable to parse the file [ %s ]: %s", $configFile, $e->getMessage());
+            $GLOBALS['logger']->info("Unable to parse the file [ %s ]: %s", $configFile, $e->getMessage());
             if ($exception)
                 throw new \Exception("Not a valid yaml file: ".$configFile);
         }
