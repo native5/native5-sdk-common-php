@@ -89,7 +89,7 @@ class HmacSignaturePlugin implements EventSubscriberInterface
         );
 
         $options['key'] = $this->_app->getConfiguration()->getSharedKey();
-        $options['secret'] = $this->_app->getConfiguration()->getSharedKey();
+        $options['secret'] = $this->_app->getConfiguration()->getSecretKey();
 
         if (!isset($options['key']) || !is_string($options['key']))
             throw new \Exception("options.key must be a String");
