@@ -309,11 +309,11 @@ class DB {
      */
     private function _checkConnection() {
         try {
-            $st = $this->_conn->prepare("SELECT 1");
-            $st->execute();
-            $st->closeCursor();
+            $st = $this->_conn->query("SELECT 1");
+            //$st->execute();
+            //$st->closeCursor();
         } catch(\PDOException $pe) {
-            $st->closeCursor();
+            //$st->closeCursor();
             if ((strcasecmp($pe->getCode(), 'HY000') !== 0) && !stristr($pe->getMessage(), 'server has gone away'))
                 throw $pe;
 

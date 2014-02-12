@@ -66,12 +66,12 @@ abstract class ApiClient
             throw new \Exception('Need shared & secret key, to be able to talk with remote server');
         }
         $signatureOpts              = array();
-        $signatureOpts['keyId']     = $sharedKey;
-        $signatureOpts['key']       = $secretKey; 
+        $signatureOpts['key']       = $sharedKey;
+        $signatureOpts['secret']    = $secretKey; 
         $signatureOpts['algorithm'] = 'sha1';
         $signatureOpts['headers']   = array('Date', 'X-Hmac-Nonce');
         $this->_remoteServer = new Client($app->getConfiguration()->getApiUrl());
-        $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts));
+        $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts, $app));
         $this->_remoteServer->getEventDispatcher()->addListener(
             'request.error', 
             function (Event $event) {

@@ -44,16 +44,17 @@ class HmacSignaturePlugin implements EventSubscriberInterface
 {
 
     private $_options;
-
+    private $_app;
 
     /**
      * Constructor
      *
      * @param array $options Signing options
      */
-    public function __construct(array $options)
+    public function __construct(array $options, $app)
     {
         $this->_options = $options;
+        $this->_app = $app;
 
     }//end __construct()
 
@@ -87,8 +88,11 @@ class HmacSignaturePlugin implements EventSubscriberInterface
             'sha512'
         );
 
-        if (!isset($options['keyId']) || !is_string($options['keyId']))
-            throw new \Exception("options.keyId must be a String");
+        $options['key'] = $this->_app->getConfiguration()->getSharedKey();
+        $options['secret'] = $this->_app->getConfiguration()->getSharedKey();
+
+        if (!isset($options['key']) || !is_string($options['key']))
+            throw new \Exception("options.key must be a String");
         if (isset($options['algorithm']) && !is_string($options['algorithm']))
             throw new \Exception("options.algorithm must be a String");
         if (isset($options['headers']) && !is_array($options['headers']))
@@ -124,10 +128,11 @@ class HmacSignaturePlugin implements EventSubscriberInterface
             throw new \Exception($options['algorithm']." is not supported");
 
         $canonicalRepresentation = HmacUtils::createCanonicalRepresentation($req->getMethod(), $headersToSign, $req->getUrl());
-        $signature = HmacUtils::computeSignature($canonicalRepresentation, $options['key'], $options['algorithm']);
+        $signature = HmacUtils::computeSignature($canonicalRepresentation, $options['secret'], $options['algorithm']);
         $logger->debug('Canonical Representation ', array($canonicalRepresentation, $signature)); 
-        $req->setHeader('Authorization', $options['algorithm'].' '.$options['keyId'].' '.$signature);
+        $req->setHeader('Authorization', $options['algorithm'].' '.$options['key'].' '.$signature);
     }
+
 
     /**
      * Returns curent fate time in RFC1123 format, using UTC time zone
