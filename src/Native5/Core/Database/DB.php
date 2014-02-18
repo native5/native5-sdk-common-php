@@ -145,8 +145,8 @@ class DB {
      * @throws Exception if not inside a transaction of if could not commit transaction successfuly
      */
     public function commitTransaction() {
-        // check that a transaction is really active
-        if (!$this->getConnection()->inTransaction())
+        // check that a transaction is really active - do not check/renew the connection - renewing a connection breaks the transaction
+        if (!$this->getConnection(false)->inTransaction())
             throw new \Exception("Not inside a DB transaction. Cannot commit.");
 
         try {
