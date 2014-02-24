@@ -52,22 +52,22 @@ abstract class ApiClient
      * @return ApiClient 
      * @throws \Exception to handle error
      */
-    public function __construct()
+    public function __construct($key=null, $secret=null)
     {
         global $app;
         global $logger;
-        try {
-            $sharedKey = $app->getConfiguration()->getSharedKey();
-            $secretKey = $app->getConfiguration()->getSecretKey();
-            if (empty($secretKey) || empty($sharedKey)) {
-                throw new \Exception('Need shared & secret key, to be able to talk with remote server');
-            } 
-        } catch (\Exception $e) {
-            throw new \Exception('Need shared & secret key, to be able to talk with remote server');
-        }
+        //try {
+            //$sharedKey = !empty($key)?$key:$app->getConfiguration()->getSharedKey();
+            //$secretKey = !empty($secret)?$secret:$app->getConfiguration()->getSecretKey();
+            //if (empty($secretKey) || empty($sharedKey)) {
+                //throw new \Exception('Need shared & secret key, to be able to talk with remote server');
+            //} 
+        //} catch (\Exception $e) {
+            //throw new \Exception('Need shared & secret key, to be able to talk with remote server');
+        //}
         $signatureOpts              = array();
-        $signatureOpts['key']       = $sharedKey;
-        $signatureOpts['secret']    = $secretKey; 
+        $signatureOpts['key']       = $key;
+        $signatureOpts['secret']    = $secret; 
         $signatureOpts['algorithm'] = 'sha1';
         $signatureOpts['headers']   = array('Date', 'X-Hmac-Nonce');
         $this->_remoteServer = new Client($app->getConfiguration()->getApiUrl());
