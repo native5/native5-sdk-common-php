@@ -28,7 +28,7 @@ use Symfony\Component\Yaml\Yaml;
  * @version   Release: 1.0
  * @link      http://www.docs.native5.com
  */
-abstract class YamlConfigFactory extends \Native5\Core\Configuration\ArrayConfigFactory {
+class YamlConfigFactory extends \Native5\Core\Configuration\ArrayConfigFactory {
 
     /**
      * __construct
@@ -43,6 +43,17 @@ abstract class YamlConfigFactory extends \Native5\Core\Configuration\ArrayConfig
         if (!empty($configFile))
             parent::__construct($this->_parse($configFile));
         $this->override($overridingConfigFile);
+    }
+
+    /**
+     * makeConfig Futher process the configuration, eg., wrap the associative array inside a getter/setter class
+     *
+     * @abstract
+     * @access protected
+     * @return void
+     */
+    protected function makeConfig() {
+        return $this->_config;
     }
 
     /**
