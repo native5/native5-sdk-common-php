@@ -165,7 +165,7 @@ class DB {
      */
     public function rollBackTransaction() {
         // check that a transaction is really active
-        if (!$this->getConnection()->inTransaction())
+        if (!$this->getConnection(false)->inTransaction())
             throw new \Exception("Not inside a DB transaction. Cannot commit.");
 
         try {
