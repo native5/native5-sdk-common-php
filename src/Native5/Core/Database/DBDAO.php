@@ -50,7 +50,7 @@ class DBDAO {
      * @access protected
      * @return void
      */
-    protected function __destruct()
+    public function __destruct()
     {
         unset($this->db);
         $this->db = null;
