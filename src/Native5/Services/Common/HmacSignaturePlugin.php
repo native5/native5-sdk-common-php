@@ -100,8 +100,9 @@ class HmacSignaturePlugin implements EventSubscriberInterface
         if (isset($options['headers']) && !is_array($options['headers']))
             throw new \Exception("options.headers must be an array of Strings");
 
+        $reqDate = $this->_rfc1123();
         if ($req->getHeader('date') === null) {
-            $req->setHeader('Date', $this->_rfc1123());
+            $req->setHeader('Date', $reqDate); 
         }
 
         if (!isset($options['headers'])) {
@@ -114,7 +115,7 @@ class HmacSignaturePlugin implements EventSubscriberInterface
         if (!in_array('X-Hmac-Nonce', $options['headers'])) {
             $options['headers'][]= 'X-Hmac-Nonce'; 
         }
-        $req->setHeader('X-HMAC-Date', $this->_rfc1123());
+        $req->setHeader('X-HMAC-Date', $reqDate); 
         $req->setHeader('X-HMAC-Nonce', 'Thohn2Mohd2zugoo');
 
         $headersToSign = array();
