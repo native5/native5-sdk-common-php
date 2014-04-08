@@ -38,9 +38,22 @@ class DBDAO {
      * @access private
      * @return mixed instance of DBDAO (this) class
      */
-    protected function __construct(\Native5\Core\Database\DB $db = null) {
+    protected function __construct(\Native5\Core\Database\DB $db = null)
+    {
         if (!empty($db))
             $this->db = $db;
+    }
+
+    /**
+     * __destruct
+     *
+     * @access protected
+     * @return void
+     */
+    public function __destruct()
+    {
+        unset($this->db);
+        $this->db = null;
     }
 
     /**
