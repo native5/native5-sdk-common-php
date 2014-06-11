@@ -23,7 +23,7 @@
     },
     "require" : {
         "monolog/monolog": "1.8.*",
-        "guzzle/guzzle": "*",
+        "guzzle/guzzle": "v3.9.1",
         "phpunit/phpunit": "3.7.*",
         "symfony/yaml": "*"
     },
