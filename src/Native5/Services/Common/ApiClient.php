@@ -52,7 +52,7 @@ abstract class ApiClient
      * @return ApiClient 
      * @throws \Exception to handle error
      */
-    public function __construct($key=null, $secret=null)
+    public function __construct($key=null, $secret=null, $apiUrl=null)
     {
         global $app;
         global $logger;
@@ -70,7 +70,11 @@ abstract class ApiClient
         $signatureOpts['secret']    = $secret; 
         $signatureOpts['algorithm'] = 'sha1';
         $signatureOpts['headers']   = array('Date', 'X-Hmac-Nonce');
-        $this->_remoteServer = new Client($app->getConfiguration()->getApiUrl());
+        // Use apiUrl if passed as a parameter
+        if (empty($apiUrl) || !filter_var($apiUrl, FILTER_VALIDATE_URL)) {
+            $apiUrl = $app->getConfiguration()->getApiUrl();
+        }
+        $this->_remoteServer = new Client($apiUrl);
         $this->_remoteServer->addSubscriber(new HmacSignaturePlugin($signatureOpts, $app));
         $this->_remoteServer->getEventDispatcher()->addListener(
             'request.error', 
