@@ -132,7 +132,7 @@ class HmacSignaturePlugin implements EventSubscriberInterface
 
         $canonicalRepresentation = HmacUtils::createCanonicalRepresentation($req->getMethod(), $headersToSign, $req->getUrl());
         $signature = HmacUtils::computeSignature($canonicalRepresentation, $options['secret'], $options['algorithm']);
-        $logger->debug('Canonical Representation ', array($canonicalRepresentation, $signature)); 
+        //$logger->debug('Canonical Representation ', array($canonicalRepresentation, $signature)); 
         $req->setHeader('Authorization', $options['algorithm'].' '.$options['key'].' '.$signature);
     }
 
